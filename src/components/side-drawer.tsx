@@ -4,11 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import SideNav from "./side-nav";
-import { sideNavByPath } from "../data/side-nav";
+import type { SideNavConfig } from "../data/sidenav/side-nav";
 
-export default function SideDrawer() {
+type SideDrawerProps = {
+  sideNavByPath: Record<string, SideNavConfig>;
+};
+
+export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
   const pathname = usePathname();
-  const config = sideNavByPath[pathname];
+  const config = pathname ? sideNavByPath[pathname] : undefined;
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
@@ -33,6 +37,7 @@ export default function SideDrawer() {
   }, []);
 
   useEffect(() => {
+    if (!config) return;
     const hashItems = config.items.filter((item) => item.href.startsWith("#"));
     if (hashItems.length === 0) return;
 
@@ -64,7 +69,7 @@ export default function SideDrawer() {
     elements.forEach((entry) => observer.observe(entry.el as Element));
 
     return () => observer.disconnect();
-  }, [config.items]);
+  }, [config]);
 
   useEffect(() => {
     if (isOpen) return;

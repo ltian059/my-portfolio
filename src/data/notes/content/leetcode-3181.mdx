@@ -1,0 +1,290 @@
+---
+title: "LeetCode 3181 – Max Total Reward"
+date: "2026-01-13"
+tags: ["leetcode", "notes", "dp", "bitset", "knapsack"]
+summary: "Detailed analysis and solution for LeetCode problem 3181: Max Total Reward, using dynamic programming and bitset optimization."
+coverImage: "/notes/leetcode-cover.png"
+priority: 1
+---
+# LeetCode 3181 – Max Total Reward
+
+## 1. Problem Restatement
+
+- You are given an array `rewardValues`.
+- You may pick rewards in **any order**, but:
+    - If current total sum is `s`, you may only pick a value `x` such that `x > s`.
+    - Each value can be picked at most once.
+- Goal: maximize the final total reward.
+
+---
+
+## 2. Key Observations
+
+### 2.1 Upper Bound
+
+Let `m = max(rewardValues)`.
+
+- Before picking `m`, the accumulated sum must be `< m`.
+- Therefore, the final total reward is **strictly less than `2m`**.
+- The theoretical maximum possible answer is `2m - 1`.
+
+---
+
+### 2.2 Duplicate Values Are Useless
+
+- If a value `x` is picked once, the new sum becomes `>= x`.
+- Therefore, the same value `x` can **never be picked again**.
+- Duplicate values do **not** create new reachable states.
+
+**Conclusion:** The array can be safely deduplicated.
+
+---
+
+## 3. Why Sorting Is Necessary
+
+### 3.1 Core Insight
+
+Any **valid picking sequence can always be reordered into strictly increasing order**:
+
+- At the moment you pick `x`, the current sum `s < x`.
+- Hence all previously picked values must be `< x`.
+
+So every valid solution corresponds to picking values in **ascending order**.
+
+---
+
+### 3.2 Why Unsorted DP Fails
+
+The DP transition for a value `x` is:
+
+- You may only transition from sums `s < x` to `s + x`.
+
+If values are processed in arbitrary order, a large value processed too early:
+
+- Cannot benefit from smaller values processed later.
+- Leads to **missing valid sequences**.
+
+**Example:** `[9, 4]`
+
+- Process `9` first → reachable `{0, 9}`
+- Process `4` next → reachable `{0, 4, 9}`
+- Missing `13` (`4 → 9`), because `9` was already processed.
+
+**Conclusion:**
+
+> To process each value only once (single-pass DP), values must be sorted in ascending order.
+> 
+
+---
+
+## 4. DP Modeling
+
+### 4.1 DP Definition
+
+Let:
+
+- `dp[s] = true` if sum `s` is reachable under the rules.
+
+Initial state:
+
+- `dp[0] = true`
+
+Transition for value `x`:
+
+- If `dp[s] = true` and `s < x`, then `dp[s + x] = true`.
+
+This is a constrained 0/1 knapsack with a **value-dependent feasibility condition**.
+
+---
+
+## 5. Bitset Optimization (Core Idea)
+
+### 5.1 Bitset Representation
+
+Use a bitset `f` where:
+
+- Bit `s` is `1` ⇔ `dp[s] = true`
+
+Initial:
+
+```
+f = 1   // only sum 0 is reachable
+```
+
+---
+
+### 5.2 Encoding the Constraint `s < x`
+
+To select `x`, we may only use states with `s < x`.
+
+Define:
+
+```
+mask = (1 << x) - 1
+```
+
+- `mask` keeps only the lowest `x` bits.
+- `f & mask` extracts all reachable sums `s < x`.
+
+---
+
+### 5.3 Transition via Bit Operations
+
+For all valid `s < x`, selecting `x` yields `s + x`.
+
+This is encoded as:
+
+```
+f |= (f & mask) << x
+```
+
+Meaning:
+
+- `(f & mask)` → all valid predecessor sums
+- `<< x` → add `x` to each of them
+- `|=` → merge “pick x” and “skip x” states
+
+This single operation performs all valid DP transitions for `x` **in bulk**.
+
+---
+
+## 6. Early Termination Optimization
+
+If at any point:
+
+```
+dp[m - 1] == true
+```
+
+then:
+
+- We can pick `m` next (since `m > m - 1`)
+- Final sum becomes `2m - 1`
+- This equals the theoretical upper bound
+
+**Conclusion:** We can immediately return `2m - 1`.
+
+---
+
+## 7. Final Algorithm Outline
+
+1. Compute `m = max(rewardValues)`.
+2. Early check for direct construction of `m - 1`.
+3. Sort `rewardValues` in ascending order.
+4. Deduplicate values.
+5. Initialize bitset `f = 1`.
+6. For each value `x` in ascending order:
+    - `mask = (1 << x) - 1`
+    - `f |= (f & mask) << x`
+7. Answer is `highest set bit in f`.
+
+---
+
+## 8. Conceptual Summary
+
+- Sorting aligns DP order with all valid pick sequences.
+- The `s < x` constraint is enforced via masking.
+- Bitset DP transforms a quadratic DP into fast word-level operations.
+- The solution is a mix of **greedy ordering + constrained knapsack + bitset optimization**.
+
+---
+
+## 9. Takeaway Insight
+
+> This problem is not just about optimization; it is about choosing a DP order that respects the problem’s feasibility constraints. Bitsets make it fast, but sorting makes it correct.
+> 
+
+## 3180. Code
+
+```java
+class Solution {
+        /**
+        Each rewardValues[i] can be collect once; can only collect rewardValues[i] > current reward value j.
+        dp problem: decide whether collect or not at each position; dp[i][j] = if we can get reward value `j` from `rewardValues[0...i]`.
+        At each rewardValues[i] = x, consider choose or not choose:
+        if not choose, `dp[i][j] = dp[i - 1][j]`, i.e. if the same subproblem that if we can get reward value x from [0...i - 1].
+        if choose, `dp[i][j] = dp[i - 1][j - x]`, where j must satisfy j - x < x and j - x >= 0, i.e. x <= j < 2x. The problem becomes "getting value j when choosing x depends on the subproblem that can we get value `j - x` from rewardValues[0...i - 1]".
+        Associate two situations:
+        {
+            dp[i][j] = dp[i - 1][j] || dp[i - 1][j - x], when x <= j < 2x;
+            dp[i][j] = dp[i - 1][j], when j < x or j >= 2x
+        } 
+        Since we cannot choose any smaller value if we choose bigger values first, the optimal approach is to choose from the smallest values first. Hence, the array must be sorted under the problem's description.
+        Assuming the maximum of rewardValues[] is m, the maximum reward we can collect must < 2*m.
+        [a1, a2, ..., an], an = m
+        a1 + a2 + ... + an-1 + an, if we can choose all values, then a1 + a2 + ... + an-1 < m, so the total maximum value must < 2*m.
+         */
+    public int maxTotalReward(int[] rewardValues) {
+        int n = rewardValues.length;
+        Arrays.sort(rewardValues);
+        int c = 2 * rewardValues[n - 1];
+        boolean[] dp = new boolean[c + 1];
+        dp[0] = true;
+        int ans = 0;
+        int pre = -1;
+        for(int i = 0; i < n; i++){
+            int x = rewardValues[i];
+            if(x == pre) continue;
+            for(int j = c; j >= x; j--){
+                if(j < 2 * x){
+                    dp[j] |= dp[j - x];
+                }
+                if(dp[j]){
+                    ans = Math.max(ans, j);
+                }
+            }
+            pre = x;
+        }
+        return ans;
+    }
+}
+```
+
+## 3181. Code
+
+```java
+import java.math.BigInteger;
+class Solution {
+    /**
+    Same problem as 3180.
+    But 3181's dataset is much larger, optimization has to be done.
+    From the dp equation: dp[j] |= dp[j - x], this can be done using a bitset.
+    Use a binary number, the initial state is the lowest digit being 1, indicating dp[0] = true;
+    For each rewardValues[i] = x, the state transfer equation is dp[j] |= dp[j - x], which is equivalent to: if dp[s] = true, for all s < x, dp[s + x] = true, where s is the current reachable sum.
+    This is equivalent to taking all reachable sums `s < x`, shifting them by `x`, and OR-ing back.
+    Final result is the highest set bit of the bitset.
+    In this way, each `j` is not processed separately, but processed in a batch(32/64) with a bitset.
+     */
+    public int maxTotalReward(int[] rewardValues) {
+        int n = rewardValues.length;
+        int mx = 0;
+        for(int x : rewardValues) mx = Math.max(mx, x);
+        
+        // The maximum value we can get < 2 * mx
+        // 1) If we can get mx - 1, we can get mx.
+        // i.e. the answer is certainly = mx - 1 + mx = 2*mx - 1
+        // 2) If there are two values sum to mx - 1, we can get 2*mx - 1.
+        Set<Integer> set = new HashSet<>();
+        int target = mx - 1;
+        for(int x : rewardValues){
+            if(x == mx - 1) return 2 * mx - 1;
+            if(set.contains(x)) continue;
+            if(set.contains(target - x)) return 2 * mx - 1;
+            set.add(x);
+        }
+        Arrays.sort(rewardValues);
+        BigInteger f = BigInteger.ONE;
+        int ans = 0;
+        int pre = -1;
+        for(int i = 0; i < n; i++){
+            int x = rewardValues[i];
+            if(pre == x) continue;
+            BigInteger mask = BigInteger.ONE.shiftLeft(x).subtract(BigInteger.ONE);
+            // do operation for all bits <= x
+            f = f.or(f.and(mask).shiftLeft(x)); // dp[s + x] |= dp[s]
+            pre = x;
+        }
+        return f.bitLength() - 1;
+    }
+}
+```

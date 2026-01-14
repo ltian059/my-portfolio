@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notes } from "../../data/notes";
+import { getAllNotes } from "@/data/notes/reader";
 
 export const metadata = {
   title: "Notes",
@@ -7,6 +7,7 @@ export const metadata = {
 };
 
 export default function NotesPage() {
+  const notes = getAllNotes();
   const sortedNotes = [...notes].sort((a, b) => {
     const aPriority = a.priority ?? -1;
     const bPriority = b.priority ?? -1;

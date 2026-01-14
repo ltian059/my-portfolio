@@ -12,16 +12,10 @@ import {
   techStack,
   notesSection,
 } from "../data/home";
-import { notes } from "../data/notes";
+import { getAllNotes } from "@/data/notes/reader";
 
 export default function Home() {
-  const featuredNotes = [...notes]
-    .sort((a, b) => {
-      const aPriority = a.priority ?? -1;
-      const bPriority = b.priority ?? -1;
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    })
+  const featuredNotes = getAllNotes()
     .slice(0, 3);
 
   return (

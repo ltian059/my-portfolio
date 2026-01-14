@@ -1,7 +1,6 @@
-import type { SideNavItem } from "../components/side-nav";
-import { notes } from "../data/notes";
-import { hero, resumeSection, techSection, projectsSection, notesSection} from "./home"
-
+import type { SideNavItem } from "../../components/side-nav";
+import { hero, resumeSection, techSection, projectsSection, notesSection} from "../home"
+import { getAllNotes } from "@/data/notes/reader";
 export type SideNavConfig = {
   title?: string;
   items: SideNavItem[];
@@ -14,13 +13,7 @@ const homeItems: SideNavItem[] = homeProps.map((section) => ({
 }));
 
 
-const noteItems: SideNavItem[] = notes.
-  sort((a, b) => { 
-    const ap = a.priority ?? -1;
-    const bp = b.priority ?? -1;
-    if (ap !== bp) return ap - bp;
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-   })
+const noteItems: SideNavItem[] = getAllNotes()
   .map((note) => ({
   label: note.title,
   href: `#${note.slug}`,

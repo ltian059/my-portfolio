@@ -1,0 +1,315 @@
+---
+title: "Heap Sort"
+date: "2026-01-13"
+tags: ["sorting", "algorithms", "heap"]
+summary: "Heap Sort is an efficient, in-place sorting algorithm that utilizes the properties of a binary heap data structure to sort elements in O(n log n) time complexity."
+priority: 2
+coverImage: ""
+---
+# 1. Core Idea
+
+Heap Sort is a comparison-based, in-place sorting algorithm that leverages the properties of a **binary heap**.
+
+A heap is a logical **complete binary tree** typically represented using an array.
+
+In a **max-heap**, every parent node is greater than or equal to its children, which guarantees that the maximum element is always located at the root.
+
+Heap Sort uses this property in two phases:
+
+1. **Build a max-heap** from the input array.
+2. **Repeatedly extract the maximum element** from the heap and place it at the end of the array.
+
+By shrinking the heap size after each extraction and restoring the heap property, the array becomes sorted in ascending order.
+
+Key characteristics:
+
+- Time complexity is guaranteed to be $\Theta(n \log n)$ in all cases.
+- The algorithm is **in-place** (constant extra space).
+- Heap Sort is **not stable**.
+
+---
+
+# 2. Steps
+
+### Step 1: Heapify (Build a Max-Heap)
+
+Transform the array (or subarray) into a max-heap using a **bottom-up heap construction**.
+
+- Treat the array range as a logical complete binary tree.
+- All leaf nodes already satisfy the heap property.
+- Start from the **last non-leaf node** and apply `siftDown` to each node, moving upward to the root.
+
+Why bottom-up `siftDown`?
+
+- Although a single `siftDown` can take $O(log⁡n)$,
+- Most nodes are near the leaves and have very small heights.
+- Summing the costs over all nodes results in a total time complexity of $\Theta (n)$
+
+At the end of this step, the array satisfies the max-heap property.
+
+---
+
+### Step 2: Repeatedly Extract the Maximum
+
+Once the max-heap is built:
+
+1. Swap the root element (maximum) with the last element of the heap.
+2. Reduce the heap size by one (excluding the sorted element).
+3. Apply `siftDown` to the new root to restore the max-heap property.
+
+Repeat this process until the heap size is reduced to one.
+
+- Each extraction takes $O(\log n)$.
+- Performed $n$ times.
+- Total time for this step is $\Theta (n \log n)$.
+
+---
+
+# 3. Key Operations
+
+### Sift Down
+
+- Used when the heap property may be violated at a node whose children are already valid heaps.
+- Moves the element downward by repeatedly swapping it with the larger child.
+- Time complexity: $O(\log n)$.
+
+### Why Not Sift Up for Heap Construction?
+
+- Building a heap using repeated insertions (`siftUp`) results in $\Theta(n \log n)$.
+- Bottom-up heapify with `siftDown` exploits the height distribution of nodes and achieves $\Theta(n)$ time.
+
+---
+
+# 4. Complexity Summary
+
+- **Heapify**: Θ(n)
+- **Sorting (extract max)**: Θ(n log n)
+- **Total Time Complexity**: Θ(n log n)
+- **Space Complexity**: O(1) auxiliary space
+- **Stability**: Not stable
+
+---
+
+# 5. When to Use Heap Sort
+
+- When a guaranteed $\Theta(n \log n)$ time complexity is required.
+- **When in-place sorting is preferred and extra memory must be minimized.**
+- When stability is not a requirement.
+
+# Code (Max-Heap)
+
+```java
+package org.example.sorting.heapsort;
+
+import org.example.sorting.SortingAlgo;
+
+public class MaxHeapSort implements SortingAlgo {
+
+    @Override
+    public void sort(int[] arr, int low, int high) {
+        if(arr == null || arr.length == 0 || low >= high || low < 0 || high >= arr.length) return;
+        // 1. heapify the array
+        heapify(arr, low, high); // O(n)
+        // 2. swap the heap top to the last position, then sift down the new heap top to maintain the heap of original (heapSize - 1).
+        heapSort(arr, low, high); // O(nlogn)
+    }
+
+    private void heapSort(int[] arr, int low, int high) {
+        // After heapify, arr[low, high] now is a max-heap.
+        // Sort the array from low to high by swapping the current max-heap top(maximum) to the end in each iteration,
+        // then rebuild the heap in the range [low, high--]
+        for(int end = high; end > low; end--){
+            swap(arr, low, end); // swap maximum to the end
+            siftDown(arr, low, low,end - 1); // Sift down the current heap top, restore the heap from [low, end - 1](exclude end).
+        }
+    }
+
+    /**
+     * Builds a max-heap in-place over the subarray {@code [low, high]} using
+     * the bottom-up heap construction (heapify) algorithm.
+     *
+     * <p>
+     * The subarray {@code [low, high]} is treated as a logical complete binary tree
+     * whose root is at index {@code low}. All heap index calculations are therefore
+     * performed relative to {@code low}.
+     * </p>
+     *
+     * <p>
+     * Heap construction is done by sifting down each non-leaf node, starting from
+     * the last non-leaf node and moving upward to the root. At each step,
+     * {@link #siftDown(int[], int, int, int)} restores the max-heap property for the
+     * subtree rooted at the current node.
+     * </p>
+     *
+     * <p>
+     * In a complete binary tree with {@code n} nodes, the distribution of node heights is:
+     * <pre>
+     * height 0 (leaves):        ≈ n / 2 nodes
+     * height 1:                ≈ n / 4 nodes
+     * height 2:                ≈ n / 8 nodes
+     * ...
+     * height log n (root):      1 node
+     * </pre>
+     * Summing the cost of sifting down all nodes yields a linear total cost.
+     * </p>
+     * <p>
+     * Although a single sift-down operation can take O(log n) time in the worst case,
+     * most nodes are close to the leaves and have small heights. The total cost of
+     * heapify is therefore Θ(n), where {@code n = high - low + 1}.
+     * </p>
+     *
+     * <p>
+     * Space complexity: O(1), as the heap is built in-place.
+     * </p>
+     *
+     * @param arr  the array containing the elements to be heapified
+     * @param low  the starting index (root) of the heap
+     * @param high the ending index of the heap (inclusive)
+     */
+    private void heapify(int[] arr, int low, int high) {
+        // In a 0-based array:
+        // left node: 2i + 1, right node: left + 1.
+        // parent node: (i - 1) / 2, where i is the index of the array.
+        // the last leaf index is n - 1, resulting the last non-leaf node index is (n - 2) / 2 = n / 2 - 1.
+        // sift down each non-leaf node
+        int size = high - low + 1;
+        int lastNonLeaf = low + size / 2 - 1; // need to add offset starting index low.
+        for(int i = lastNonLeaf; i >= low; i--){
+            siftDown(arr, i, low, high);
+        }
+    }
+
+    /**
+     * Sift down the element at index {@code i} within a max-heap defined on the subarray {@code [low, high]}.
+     *
+     * <p>
+     * The heap is a logical complete binary tree whose root is at {@code low}.
+     * All heap index calculations are therefore performed using an offset:
+     * for a logical heap index {@code p = i - low},
+     * the left child is at {@code low + (2 * p + 1)} and the right child at
+     * {@code low + (2 * p + 2)}.
+     * </p>
+     *
+     * <p>
+     * This method assumes that the left and right subtrees of {@code i} already
+     * satisfy the max-heap property, and fixes a possible violation at {@code i}
+     * by repeatedly swapping the current element with its larger child until
+     * the max-heap property is restored.
+     * </p>
+     *
+     * <p>
+     * The operation proceeds top-down: at each step, the element at {@code i}
+     * is compared with its children, and if it is smaller than the larger child,
+     * it is swapped downward. The process stops when {@code i} becomes a leaf
+     * or is greater than or equal to both children.
+     * </p>
+     *
+     * <p>
+     * Time complexity: O(log n), where {@code n = high - low + 1}.<br>
+     * Space complexity: O(1).
+     * </p>
+     *
+     * @param arr  the array containing the heap
+     * @param i    the index of the element to sift down (absolute array index)
+     * @param low  the starting index (root) of the heap
+     * @param high the ending index of the heap (inclusive)
+     */
+    private void siftDown(int[] arr, int i, int low, int high) {
+        while (true){
+            int p = i - low; // logical index in the heap.
+            int left = low + p * 2 + 1; //offset index from starting index low.
+            if(left > high) return;
+            // max-heap
+            int right = left + 1;
+            int largest = left;
+            if(right <= high && arr[right] > arr[left]){
+                largest = right;
+            }
+
+            if(arr[i] >= arr[largest]){
+                // Already satisfy the max-heap
+                return;
+            }
+            // swap current i with largest
+            swap(arr, i, largest);
+            i = largest; // Go down, check if next level satisfy heap property.
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+}
+
+```
+
+# Code(Min Heap, must reverse)
+
+```java
+package org.example.sorting.heapsort;
+
+import org.example.sorting.SortingAlgo;
+
+public class MinHeapSort implements SortingAlgo {
+    @Override
+    public void sort(int[] arr, int low, int high) {
+        if(arr == null || arr.length == 0 || low >= high || low < 0 || high >= arr.length) return;
+
+        heapify(arr, low, high);
+        heapSort(arr, low, high);
+    }
+
+    private void heapSort(int[] arr, int low, int high) {
+        // In a min heap, heap top is the smallest element
+        // Iteratively extract the heap top, then restore the heap using the remaining elements.
+        for(int end = high; end > low; end--){
+            swap(arr, low, end);
+            siftDown(arr, low, low, end - 1);
+        }
+        // Reverse the array
+        for(int i = low, j = high; j > i; i++, j--){
+            swap(arr, i, j);
+        }
+    }
+
+    private void heapify(int[] arr, int low, int high) {
+        // heapify all non-leaf nodes
+        int size = high - low + 1;
+        // offset starting at low
+        int lastNonLeaf = low + size / 2 - 1;
+
+        for(int i = lastNonLeaf; i >= low; i--){
+            // sift down non leaf nodes if can
+            siftDown(arr, i, low, high);
+        }
+    }
+
+    private void siftDown(int[] arr, int i, int low, int high) {
+        // min-heap sift down node
+        while(true){
+            int p = i - low; // relative index to low.
+            int left = low + 2 * p + 1;
+            if(left > high) {
+                return; //out of heap boundary
+            }
+            int smallest = left;
+            int right = left + 1;
+            if(right <= high && arr[left] > arr[right]){
+                smallest = right;
+            }
+            // min-heap construction
+            if(arr[i] <= arr[smallest]) return;
+            swap(arr, i, smallest);
+            i = smallest;
+        }
+    }
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+```

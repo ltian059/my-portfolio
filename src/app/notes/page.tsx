@@ -1,19 +1,28 @@
 import Link from "next/link";
-import { notes } from "../../data/notes";
+import { headers } from "next/headers";
 
 export const metadata = {
   title: "Notes",
   description: "刷题笔记与学习记录",
 };
 
-export default function NotesPage() {
-  const sortedNotes = [...notes].sort((a, b) => {
-    const aPriority = a.priority ?? -1;
-    const bPriority = b.priority ?? -1;
-    if (aPriority !== bPriority) return aPriority - bPriority;
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
+async function getBaseUrl() {
+  const headerList = await headers();
+  const protocol = headerList.get("x-forwarded-proto") ?? "http";
+  const host =
+    headerList.get("x-forwarded-host") ??
+    headerList.get("host") ??
+    "localhost:3000";
+  return `${protocol}://${host}`;
+}
 
+export default async function NotesPage() {
+  const baseUrl = await getBaseUrl();
+  const res = await fetch(`${baseUrl}/api/notes`, { cache: "no-store" });
+  const data = await res.json();
+  const sortedNotes = data.notes ?? [];
+
+  
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <header className="space-y-3">
@@ -32,6 +41,15 @@ export default function NotesPage() {
             key={note.slug}
             className="rounded-2xl border border-black/[.08] p-5 dark:border-white/[.145]"
           >
+            {note.coverImage ? (
+              <img
+                src={note.coverImage}
+                alt={note.title}
+                className="mb-4 h-auto w-full rounded-xl"
+                loading="lazy"
+                decoding="async"
+              />
+            ) : null}
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <Link
                 href={`/notes/${note.slug}`}

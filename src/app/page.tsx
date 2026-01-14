@@ -1,28 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  featuredProjects,
-  focusNote,
-  hero,
-  projectsSection,
-  resumeHighlights,
-  resumeSection,
-  stats,
-  techSection,
-  techStack,
-  notesSection,
-} from "../data/home";
-import { notes } from "../data/notes";
+import { headers } from "next/headers";
 
-export default function Home() {
-  const featuredNotes = [...notes]
-    .sort((a, b) => {
-      const aPriority = a.priority ?? -1;
-      const bPriority = b.priority ?? -1;
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    })
-    .slice(0, 3);
+async function getBaseUrl() {
+  const headerList = await headers();
+  const protocol = headerList.get("x-forwarded-proto") ?? "http";
+  const host =
+    headerList.get("x-forwarded-host") ??
+    headerList.get("host") ??
+    "localhost:3000";
+  return `${protocol}://${host}`;
+}
+
+export default async function Home() {
+  const baseUrl = await getBaseUrl();
+  const [homeRes, notesRes] = await Promise.all([
+    fetch(`${baseUrl}/api/home`, { cache: "no-store" }),
+    fetch(`${baseUrl}/api/notes`, { cache: "no-store" }),
+  ]);
+
+  const homeData = await homeRes.json();
+  const notesData = await notesRes.json();
+
+  const {
+    hero,
+    stats,
+    resumeSection,
+    resumeHighlights,
+    techSection,
+    techStack,
+    focusNote,
+    projectsSection,
+    featuredProjects,
+    notesSection,
+  } = homeData;
+
+  const featuredNotes = (notesData.notes ?? []).slice(0, 3);
 
   return (
     <div className="relative">

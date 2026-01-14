@@ -12,6 +12,7 @@ export default function SideDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
+  const [activeHref, setActiveHref] = useState<string | undefined>(undefined);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingHrefRef = useRef<string | null>(null);
   const CLOSE_DURATION_MS = 300;
@@ -30,6 +31,40 @@ export default function SideDrawer() {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    const hashItems = config.items.filter((item) => item.href.startsWith("#"));
+    if (hashItems.length === 0) return;
+
+    const elements = hashItems
+      .map((item) => ({
+        href: item.href,
+        el: document.querySelector(item.href),
+      }))
+      .filter((entry) => entry.el);
+
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) {
+          const id = (visible[0].target as HTMLElement).id;
+          setActiveHref(`#${id}`);
+        }
+      },
+      {
+        rootMargin: "-20% 0px -60% 0px",
+        threshold: [0.1, 0.25, 0.5, 0.75],
+      }
+    );
+
+    elements.forEach((entry) => observer.observe(entry.el as Element));
+
+    return () => observer.disconnect();
+  }, [config.items]);
 
   useEffect(() => {
     if (isOpen) return;
@@ -110,6 +145,7 @@ export default function SideDrawer() {
             className="!border-none !bg-transparent dark:!bg-transparent px-0 py-0"
             headerClassName="hidden"
             onItemClick={handleItemClick}
+            activeHref={activeHref}
           />
         </div>
       </div>

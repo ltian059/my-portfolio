@@ -29,6 +29,19 @@ body {
   font-family: var(--font-geist-sans);
 }
 
+body,
+header,
+main,
+section,
+nav,
+aside,
+article,
+button,
+a {
+  transition: background-color 240ms ease, color 240ms ease,
+    border-color 240ms ease;
+}
+
 :where(section[id], li[id]) {
   scroll-margin-top: 96px;
 }

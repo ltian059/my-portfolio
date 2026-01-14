@@ -14,7 +14,14 @@ const homeItems: SideNavItem[] = homeProps.map((section) => ({
 }));
 
 
-const noteItems: SideNavItem[] = notes.map((note) => ({
+const noteItems: SideNavItem[] = notes.
+  sort((a, b) => { 
+    const ap = a.priority ?? -1;
+    const bp = b.priority ?? -1;
+    if (ap !== bp) return ap - bp;
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+   })
+  .map((note) => ({
   label: note.title,
   href: `#${note.slug}`,
 }));

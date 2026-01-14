@@ -11,6 +11,7 @@ type SideNavProps = {
   collapseLabel?: string;
   headerClassName?: string;
   className?: string;
+  activeHref?: string;
 };
 
 export default function SideNav({
@@ -21,6 +22,7 @@ export default function SideNav({
   collapseLabel = "<<",
   headerClassName = "flex items-center justify-between",
   className = "",
+  activeHref,
 }: SideNavProps) {
   return (
     <aside
@@ -46,7 +48,11 @@ export default function SideNav({
           <a
             key={item.href}
             href={item.href}
-            className="block rounded-lg px-3 py-2 hover:bg-black/[.04] dark:hover:bg-white/[.06]"
+            className={`block rounded-lg px-3 py-2 hover:bg-black/[.04] dark:hover:bg-white/[.06] ${
+              activeHref === item.href
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200"
+                : ""
+            }`}
           >
             {item.label}
           </a>

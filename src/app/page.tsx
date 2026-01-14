@@ -75,12 +75,7 @@ export default function Home() {
                 {hero.notesLabel}
               </Link>
               {/* Github Button */}
-              <a href={hero.githubUrl} target="_blank" rel="noopener noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-white/[.08]"
-              >
-                GitHub
-              </a>
-
+          
               {/* Experience Button */}
               <Link
               href="/experience"

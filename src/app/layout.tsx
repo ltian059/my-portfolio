@@ -5,7 +5,6 @@ import HeaderNav from "../components/header-nav";
 import SideDrawer from "../components/side-drawer";
 import ThemeToggle from "../components/theme-toggle";
 import "./globals.css";
-import { sideNavByPath } from "../data/sidenav/side-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +34,7 @@ export default function RootLayout({
         <header className="fixed inset-x-0 top-0 z-40 border-b border-black/[.08] bg-white/90 backdrop-blur dark:border-white/[.145] dark:bg-[#202126]">
           <div className="mx-auto flex w-full max-w-5xl items-center px-6 py-4">
             <div className="flex flex-1 items-center gap-3">
-              <SideDrawer sideNavByPath={sideNavByPath} />
+              <SideDrawer />
               <Link
                 href="/"
                 className="font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"

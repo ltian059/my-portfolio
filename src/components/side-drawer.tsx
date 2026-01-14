@@ -4,23 +4,43 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import SideNav from "./side-nav";
-import type { SideNavConfig } from "../data/sidenav/side-nav";
+type SideNavConfig = {
+  title?: string;
+  items: { label: string; href: string }[];
+};
 
-type SideDrawerProps = {
+type SideNavState = {
   sideNavByPath: Record<string, SideNavConfig>;
 };
 
-export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
+export default function SideDrawer() {
   const pathname = usePathname();
-  const config = pathname ? sideNavByPath[pathname] : undefined;
+  // Holds side nav config fetched from the API.
+  const [sideNavState, setSideNavState] = useState<SideNavState | null>(null);
+  const config = pathname ? sideNavState?.sideNavByPath[pathname] : undefined;
+  // Drawer UI state.
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
+  // Tracks which section is currently in view for highlight.
   const [activeHref, setActiveHref] = useState<string | undefined>(undefined);
+  // Timer for close animation so we can remove the drawer after it finishes.
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Stores the clicked href so we can navigate after the drawer closes.
   const pendingHrefRef = useRef<string | null>(null);
   const CLOSE_DURATION_MS = 300;
 
+  // Fetch side nav data once on mount (client-side).
+  useEffect(() => {
+    const loadSideNav = async () => {
+      const res = await fetch("/api/sidenav");
+      const data = await res.json();
+      setSideNavState(data);
+    };
+    loadSideNav();
+  }, []);
+
+  // Prevent background scroll when the drawer is open.
   useEffect(() => {
     if (!isOpen) return;
     const html = document.documentElement;
@@ -30,12 +50,14 @@ export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
     };
   }, [isOpen]);
 
+  // Cleanup close timer on unmount.
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     };
   }, []);
 
+  // Observe headings to highlight the active section in the side nav.
   useEffect(() => {
     if (!config) return;
     const hashItems = config.items.filter((item) => item.href.startsWith("#"));
@@ -71,6 +93,7 @@ export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
     return () => observer.disconnect();
   }, [config]);
 
+  // Navigate after closing so the scroll target is not blocked by the open drawer.
   useEffect(() => {
     if (isOpen) return;
     const pendingHref = pendingHrefRef.current;
@@ -86,13 +109,20 @@ export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
     window.location.href = pendingHref;
   }, [isOpen]);
 
-  if (!config || config.items.length === 0) return null;
+  // Clear the entering flag after the first animation frame.
+  useEffect(() => {
+    if (!isOpen || !isEntering) return;
+    const id = requestAnimationFrame(() => setIsEntering(false));
+    return () => cancelAnimationFrame(id);
+  }, [isOpen, isEntering]);
 
+  // Handle item clicks by storing the target and closing the drawer first.
   const handleItemClick = (href: string) => {
     pendingHrefRef.current = href;
     handleClose();
   };
 
+  // Open drawer and start enter animation.
   const handleOpen = () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setIsClosing(false);
@@ -100,6 +130,7 @@ export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
     setIsOpen(true);
   };
 
+  // Close drawer and wait for exit animation to finish before unmounting.
   const handleClose = () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setIsClosing(true);
@@ -109,11 +140,8 @@ export default function SideDrawer({ sideNavByPath }: SideDrawerProps) {
     }, CLOSE_DURATION_MS);
   };
 
-  useEffect(() => {
-    if (!isOpen || !isEntering) return;
-    const id = requestAnimationFrame(() => setIsEntering(false));
-    return () => cancelAnimationFrame(id);
-  }, [isOpen, isEntering]);
+
+  if (!config || config.items.length === 0) return null;
 
   const drawer = isOpen ? (
     <div className="fixed inset-0 z-30 pt-16">

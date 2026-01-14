@@ -1,4 +1,6 @@
 export const hero = {
+  id: "hero",
+  title: "Hero",
   avatarSrc: "/avatar.png",
   avatarAlt: "Profile photo",
   tagline: "Software Engineer / Backend Engineer",
@@ -11,4 +13,5 @@ export const hero = {
   email: "danieltian059@gmail.com",
   resumeFile: "/DanielTian_Resume_B.pdf",
   resumeDownloadName: "DanielTian_Resume.pdf",
+  githubUrl: "https://github.com/ltian059"
 };

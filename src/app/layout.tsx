@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import ThemeToggle from "../components/theme-toggle";
+import SideNavContainer from "../components/side-nav-container";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,6 +49,7 @@ export default function RootLayout({
             </nav>
           </div>
         </header>
+        <SideNavContainer />
         {children}
       </body>
     </html>

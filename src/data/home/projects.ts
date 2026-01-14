@@ -1,4 +1,5 @@
 export const projectsSection = {
+  id: "projects",
   title: "Featured Projects",
   subtitle: "Top 3 representative Projects",
 };

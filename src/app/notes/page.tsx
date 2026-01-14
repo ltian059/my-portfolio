@@ -11,7 +11,7 @@ export default function NotesPage() {
     const aPriority = a.priority ?? -1;
     const bPriority = b.priority ?? -1;
     if (aPriority !== bPriority) return aPriority - bPriority;
-    return new Date(a.date).getTime() - new Date(b.date).getTime();
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
   return (
@@ -28,6 +28,7 @@ export default function NotesPage() {
       <ul className="mt-10 space-y-4">
         {sortedNotes.map((note) => (
           <li
+            id={note.slug}
             key={note.slug}
             className="rounded-2xl border border-black/[.08] p-5 dark:border-white/[.145]"
           >

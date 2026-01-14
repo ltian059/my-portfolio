@@ -10,6 +10,7 @@ import {
   stats,
   techSection,
   techStack,
+  notesSection,
 } from "../data/home";
 import { notes } from "../data/notes";
 
@@ -19,17 +20,19 @@ export default function Home() {
       const aPriority = a.priority ?? -1;
       const bPriority = b.priority ?? -1;
       if (aPriority !== bPriority) return aPriority - bPriority;
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
     })
     .slice(0, 3);
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_60%)] blur-3xl" />
       <div className="pointer-events-none absolute -bottom-48 right-0 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(14,116,144,0.18),transparent_60%)] blur-3xl" />
 
       <main className="relative mx-auto w-full max-w-5xl px-6 py-16">
-        <section className="grid gap-10 md:grid-cols-[220px,1fr] md:items-center">
+
+        {/* #####################  Hero Section Avatar #######################*/}
+        <section id={hero.id} className="grid gap-10 md:grid-cols-[220px,1fr] md:items-center">
           <div className="flex flex-col items-center gap-4">
             <div className="relative h-40 w-40 overflow-hidden rounded-full border border-black/[.08] bg-gradient-to-br from-emerald-100 via-white to-sky-100 dark:border-white/[.145] dark:from-emerald-500/20 dark:via-black/40 dark:to-sky-500/20">
               <Image
@@ -42,7 +45,7 @@ export default function Home() {
               />
             </div>
           </div>
-
+          {/* ##################### Hero Section text and Buttons #######################*/}
           <div className="space-y-6 text-center">
             <div className="space-y-3">
               <p className="text-sm font-medium uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
@@ -55,7 +58,7 @@ export default function Home() {
                 {hero.summary}
               </p>
             </div>
-
+            {/* Resume Button */}
             <div className="flex flex-wrap items-center justify-center gap-3">
               <a
                 href={hero.resumeFile}
@@ -64,12 +67,21 @@ export default function Home() {
               >
                 {hero.resumeLabel}
               </a>
+              {/* Notes Button */}
               <Link
                 href="/notes"
                 className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-white/[.08]"
               >
                 {hero.notesLabel}
               </Link>
+              {/* Github Button */}
+              <a href={hero.githubUrl} target="_blank" rel="noopener noreferrer"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-white/[.08]"
+              >
+                GitHub
+              </a>
+
+              {/* Experience Button */}
               <Link
               href="/experience"
               className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
@@ -77,6 +89,7 @@ export default function Home() {
                 View
                 Full Experience
               </Link>
+
             </div>
 
             <div className="flex flex-wrap justify-center gap-6 text-sm text-zinc-600 dark:text-zinc-300">
@@ -94,7 +107,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mt-16 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+        {/* ##################### Resume Highlights ########################### */}
+        <section id={resumeSection.id} className="mt-16 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
           <div className="rounded-3xl border border-black/[.08] bg-white/70 p-6 shadow-sm dark:border-white/[.145] dark:bg-white/[.04]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
@@ -132,6 +146,10 @@ export default function Home() {
             </div>
           </div>
 
+        </section>
+
+        {/* ########################### Tech Stack ########################### */}
+        <section id={techSection.id} className="mt-16 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
           <div className="rounded-3xl border border-black/[.08] bg-white/70 p-6 shadow-sm dark:border-white/[.145] dark:bg-white/[.04]">
             <h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
               {techSection.title}
@@ -164,8 +182,8 @@ export default function Home() {
           </div>
         </section>
 
-
-        <section className="mt-16">
+        {/* ########################### Projects ########################### */}
+        <section id={projectsSection.id} className="mt-16">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
               {projectsSection.title}
@@ -195,10 +213,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mt-16">
+        {/* ########################### Featured Notes ########################### */}
+        <section id={notesSection.id} className="mt-16">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
-              Featured Notes
+              {notesSection.title}
             </h2>
             <Link
               href="/notes"

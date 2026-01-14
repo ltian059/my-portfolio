@@ -1,4 +1,5 @@
 export const resumeSection = {
+  id: "resume",
   title: "Resume Highlights",
   linkLabel: "Full experience →",
 };

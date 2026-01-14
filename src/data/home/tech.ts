@@ -1,4 +1,5 @@
 export const techSection = {
+  id: "tech",
   title: "Tech Stack & Focus",
   subtitle: "Business delivery first, continuously improving full-stack skills.",
 };

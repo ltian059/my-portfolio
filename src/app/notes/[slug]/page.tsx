@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllNotes, getNoteBySlug } from "@/data/notes/reader";
+import { getAllNotes, getNoteBySlug } from "@/lib/notes/reader";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };

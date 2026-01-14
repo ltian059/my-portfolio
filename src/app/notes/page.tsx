@@ -1,13 +1,28 @@
 import Link from "next/link";
-import { getAllNotes } from "@/data/notes/reader";
+import { headers } from "next/headers";
 
 export const metadata = {
   title: "Notes",
   description: "刷题笔记与学习记录",
 };
 
-export default function NotesPage() {
-  const sortedNotes = getAllNotes();
+async function getBaseUrl() {
+  const headerList = await headers();
+  const protocol = headerList.get("x-forwarded-proto") ?? "http";
+  const host =
+    headerList.get("x-forwarded-host") ??
+    headerList.get("host") ??
+    "localhost:3000";
+  return `${protocol}://${host}`;
+}
+
+export default async function NotesPage() {
+  const baseUrl = await getBaseUrl();
+  const res = await fetch(`${baseUrl}/api/notes`, { cache: "no-store" });
+  const data = await res.json();
+  const sortedNotes = data.notes ?? [];
+
+  
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <header className="space-y-3">

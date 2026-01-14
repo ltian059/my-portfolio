@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllNotes } from "@/data/notes/reader";
+import { getAllNotes } from "@/lib/notes/reader";
 
 export function GET() {
   const notes = getAllNotes();

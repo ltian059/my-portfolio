@@ -1,5 +1,5 @@
 /**
- * @file Reader for MDX notes stored under src/data/notes/content.
+ * @file Reader for MDX notes stored under src/data/notes.
  * These helpers run on the server to read files and parse frontmatter.
  */
 
@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
-const NOTES_DIR = path.join(process.cwd(), "src", "data", "notes", "content");
+const NOTES_DIR = path.join(process.cwd(), "src", "data", "notes");
 
 export type NoteMeta = {
   slug: string;

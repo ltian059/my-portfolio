@@ -7,7 +7,7 @@ import {
   projectsSection,
   notesSection,
 } from "@/data/home";
-import { getAllNotes } from "@/data/notes/reader";
+import { getAllNotes } from "@/lib/notes/reader";
 
 export type SideNavConfig = {
   title?: string;

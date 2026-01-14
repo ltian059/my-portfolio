@@ -1,19 +1,42 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllNotes, getNoteBySlug } from "@/lib/notes/reader";
+import { headers } from "next/headers";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import rehypePrettyCode from "rehype-pretty-code";
+import { log } from "console";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateStaticParams() {
-  return getAllNotes().map((note) => ({ slug: note.slug }));
+async function getBaseUrl() {
+  const headerList = await headers();
+  const protocol = headerList.get("x-forwarded-proto") ?? "http";
+  const host =
+    headerList.get("x-forwarded-host") ??
+    headerList.get("host") ??
+    "localhost:3000";
+  return `${protocol}://${host}`;
 }
 
 export default async function NotePage({ params }: PageProps) {
   const { slug } = await params;
-  const note = getNoteBySlug(slug);
+  const baseUrl = await getBaseUrl();
+  const encodedSlug = encodeURIComponent(slug);
+  log(`Fetching note data for slug: ${slug} from ${baseUrl}/api/notes/${encodedSlug}`);
+  const res = await fetch(`${baseUrl}/api/notes/${encodedSlug}`, {
+    cache: "no-store",
+  });
+  if (res.status === 404) {
+    notFound();
+  }
 
-  if (!note) notFound();
+  if (!res.ok) {
+    throw new Error(`Failed to load note: ${slug}`);
+  }
+
+  const data = await res.json();
+  const note = data.note;
 
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -44,13 +67,27 @@ export default async function NotePage({ params }: PageProps) {
         ))}
       </div>
 
-      {/* <div className="mt-8 space-y-4 text-zinc-700 dark:text-zinc-200">
-        {note.body.map((p, idx) => (
-          <p key={idx} className="leading-8">
-            {p}
-          </p>
-        ))}
-      </div> */}
+      <div className="mt-8 space-y-6 text-zinc-700 dark:text-zinc-200">
+        <MDXRemote
+          source={note.body}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+              rehypePlugins: [
+                [
+                  rehypePrettyCode,
+                  {
+                    theme: {
+                      dark: "github-dark",
+                      light: "github-light",
+                    },
+                  },
+                ],
+              ],
+            },
+          }}
+        />
+      </div>
     </article>
   );
 }

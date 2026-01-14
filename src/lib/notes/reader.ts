@@ -7,7 +7,17 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
-const NOTES_DIR = path.join(process.cwd(), "src", "data", "notes");
+const NOTES_DIR = (() => {
+  const cwd = process.cwd();
+  const candidates = [
+    path.join(cwd, "src", "data", "notes"),
+    path.join(cwd, "data", "notes"),
+  ];
+
+  // Prefer the first existing path so the reader works even if dev runs from /src.
+  const found = candidates.find((dir) => fs.existsSync(dir));
+  return found ?? candidates[0];
+})();
 
 export type NoteMeta = {
   slug: string;

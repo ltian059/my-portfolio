@@ -26,9 +26,10 @@ const noteItems: SideNavItem[] = notes.
   href: `#${note.slug}`,
 }));
 
+
 export const sideNavByPath: Record<string, SideNavConfig> = {
   "/": {
-    title: "Home Sections",
+    title: "Home",
     items: homeItems,
   },
   "/notes": {

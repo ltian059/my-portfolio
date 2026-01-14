@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import SideDrawer from "../components/side-drawer";
 import ThemeToggle from "../components/theme-toggle";
-import SideNavContainer from "../components/side-nav-container";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,14 +30,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        <header className="border-b border-black/[.08] bg-white/70 backdrop-blur dark:border-white/[.145] dark:bg-black/40">
-          <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-4">
-            <Link
-              href="/"
-              className="font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
-            >
-              Home
-            </Link>
+        <header className="fixed inset-x-0 top-0 z-40 border-b border-black/[.08] bg-white/90 backdrop-blur dark:border-white/[.145] dark:bg-[#202126]">
+          <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <SideDrawer />
+              <Link
+                href="/"
+                className="font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+              >
+                Home
+              </Link>
+            </div>
             <nav className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-300">
               <Link href="/notes" className="hover:underline">
                 Notes
@@ -49,8 +52,7 @@ export default function RootLayout({
             </nav>
           </div>
         </header>
-        <SideNavContainer />
-        {children}
+        <div className="pt-20">{children}</div>
       </body>
     </html>
   );

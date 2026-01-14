@@ -12,6 +12,7 @@ type SideNavProps = {
   headerClassName?: string;
   className?: string;
   activeHref?: string;
+  onItemClick?: (href: string) => void;
 };
 
 export default function SideNav({
@@ -23,6 +24,7 @@ export default function SideNav({
   headerClassName = "flex items-center justify-between",
   className = "",
   activeHref,
+  onItemClick,
 }: SideNavProps) {
   return (
     <aside
@@ -48,6 +50,11 @@ export default function SideNav({
           <a
             key={item.href}
             href={item.href}
+            onClick={(event) => {
+              if (!onItemClick) return;
+              event.preventDefault();
+              onItemClick(item.href);
+            }}
             className={`block rounded-lg px-3 py-2 hover:bg-black/[.04] dark:hover:bg-white/[.06] ${
               activeHref === item.href
                 ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200"

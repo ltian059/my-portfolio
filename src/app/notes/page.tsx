@@ -7,14 +7,7 @@ export const metadata = {
 };
 
 export default function NotesPage() {
-  const notes = getAllNotes();
-  const sortedNotes = [...notes].sort((a, b) => {
-    const aPriority = a.priority ?? -1;
-    const bPriority = b.priority ?? -1;
-    if (aPriority !== bPriority) return aPriority - bPriority;
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
-
+  const sortedNotes = getAllNotes();
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <header className="space-y-3">
@@ -33,6 +26,15 @@ export default function NotesPage() {
             key={note.slug}
             className="rounded-2xl border border-black/[.08] p-5 dark:border-white/[.145]"
           >
+            {note.coverImage ? (
+              <img
+                src={note.coverImage}
+                alt={note.title}
+                className="mb-4 h-auto w-full rounded-xl"
+                loading="lazy"
+                decoding="async"
+              />
+            ) : null}
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <Link
                 href={`/notes/${note.slug}`}

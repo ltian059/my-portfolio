@@ -5,6 +5,8 @@ export type Note = {
   tags: string[];
   summary: string;
   content: string[];
+  coverImage?: string;
+  priority?: number;
 };
 
 export const notes: Note[] = [
@@ -14,6 +16,8 @@ export const notes: Note[] = [
     date: "2026-01-13",
     tags: ["nextjs", "app-router"],
     summary: "用最小例子理解 app 目录、page/layout、动态路由与导航。",
+    coverImage: "",
+    priority: 2,
     content: [
       "App Router 的核心是“约定式路由”：文件夹结构就是 URL 结构。",
       "一个路由段里放 page.tsx 就会生成页面；放 layout.tsx 会包住该段下所有子页面。",
@@ -26,6 +30,8 @@ export const notes: Note[] = [
     date: "2026-01-13",
     tags: ["leetcode", "notes"],
     summary: "题意、思路、复杂度、易错点、参考实现的结构化记录方式。",
+    coverImage: "/notes/leetcode-cover.png",
+    priority: 1,
     content: [
       "题意：一句话复述 + 输入输出边界。",
       "思路：为什么这样做？关键不变量是什么？",
@@ -34,4 +40,3 @@ export const notes: Note[] = [
     ],
   },
 ];
-

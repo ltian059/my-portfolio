@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import ThemeToggle from "../components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,7 +35,7 @@ export default function RootLayout({
               href="/"
               className="font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
             >
-              My Portfolio
+              Home
             </Link>
             <nav className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-300">
               <Link href="/notes" className="hover:underline">
@@ -43,6 +44,7 @@ export default function RootLayout({
               <Link href="/experience" className="hover:underline">
                 Experience
               </Link>
+              <ThemeToggle />
             </nav>
           </div>
         </header>

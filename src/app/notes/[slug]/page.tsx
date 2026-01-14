@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { notes } from "../data";
+import { notes } from "../../../data/notes";
 
 type PageProps = {
   params: Promise<{ slug: string }>;

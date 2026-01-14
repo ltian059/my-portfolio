@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notes } from "./data";
+import { notes } from "../../data/notes";
 
 export const metadata = {
   title: "Notes",
@@ -7,6 +7,13 @@ export const metadata = {
 };
 
 export default function NotesPage() {
+  const sortedNotes = [...notes].sort((a, b) => {
+    const aPriority = a.priority ?? -1;
+    const bPriority = b.priority ?? -1;
+    if (aPriority !== bPriority) return aPriority - bPriority;
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
+
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <header className="space-y-3">
@@ -19,9 +26,12 @@ export default function NotesPage() {
       </header>
 
       <ul className="mt-10 space-y-4">
-        {notes.map((note) => (
-          <li key={note.slug} className="rounded-2xl border border-blweack/[.08] p-5 dark:border-white/[.145]">
-            <div className="flex flex-wrap items-baseline justify-beten gap-2">
+        {sortedNotes.map((note) => (
+          <li
+            key={note.slug}
+            className="rounded-2xl border border-black/[.08] p-5 dark:border-white/[.145]"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
               <Link
                 href={`/notes/${note.slug}`}
                 className="text-lg font-medium text-zinc-950 hover:underline dark:text-zinc-50"
@@ -51,4 +61,3 @@ export default function NotesPage() {
     </div>
   );
 }
-

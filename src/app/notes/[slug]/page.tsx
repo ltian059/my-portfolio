@@ -16,6 +16,18 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+function rehypeExternalLinks() {
+  return (tree: Root) => {
+    // Ensure all links open in a new tab for safety and UX consistency.
+    visit(tree, "element", (node: any) => {
+      if (node.tagName !== "a") return;
+      node.properties = node.properties ?? {};
+      node.properties.target = "_blank";
+      node.properties.rel = "noopener noreferrer";
+    });
+  };
+}
+
 function rehypeSlugifyHeadings() {
   return (tree: Root) => {
     visit(tree, "element", (node: any) => {
@@ -119,6 +131,18 @@ export default async function NotePage({ params }: PageProps) {
           ))}
         </div>
 
+        {note.meta.coverImage ? (
+          <div className="mt-6">
+            <img
+              src={note.meta.coverImage}
+              alt={note.meta.title}
+              className="h-auto w-full rounded-2xl"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        ) : null}
+
         <div className="note-content mt-8 space-y-6 text-zinc-700 dark:text-zinc-200">
           <MDXRemote
             source={note.body}
@@ -128,6 +152,7 @@ export default async function NotePage({ params }: PageProps) {
                 remarkPlugins: [remarkMath, remarkGfm],
                 rehypePlugins: [
                   rehypeSlugifyHeadings,
+                  rehypeExternalLinks,
                   // Render inline/block math with KaTeX.
                   rehypeKatex,
                   // Render fenced code blocks with consistent themes.

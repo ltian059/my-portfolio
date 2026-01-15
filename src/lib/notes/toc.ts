@@ -6,6 +6,7 @@
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkMdx from "remark-mdx";
+import remarkMath from "remark-math";
 import { visit } from "unist-util-visit";
 import slugify from "slugify";
 
@@ -28,7 +29,12 @@ function extractHeadingText(node: any): string {
 
 export function generateToc(mdxSource: string): TocItem[] {
   // Parse MDX into an AST so we can inspect headings.
-  const tree = unified().use(remarkParse).use(remarkMdx).parse(mdxSource);
+  const tree = unified()
+    .use(remarkParse)
+    // Support math blocks to avoid MDX expression parse errors.
+    .use(remarkMath)
+    .use(remarkMdx)
+    .parse(mdxSource);
 
   const toc: TocItem[] = [];
 

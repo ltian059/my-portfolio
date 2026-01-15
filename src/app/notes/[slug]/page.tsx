@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBaseUrl } from "@/lib/api/base-url";
+import { fetchApiJson } from "@/lib/api/base-url";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -11,6 +11,7 @@ import { visit } from "unist-util-visit";
 import type { Root } from "hast";
 import TocNav from "@/components/toc-nav";
 import { notesPage } from "@/data/pages/notes/page";
+import type { NoteMeta } from "@/lib/notes/reader";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -38,24 +39,21 @@ function rehypeSlugifyHeadings() {
 
 export default async function NotePage({ params }: PageProps) {
   const { slug } = await params;
-  const baseUrl = await getBaseUrl();
   const encodedSlug = encodeURIComponent(slug);
   // Fetch note content and the list of notes for the left sidebar.
-  const [noteRes, notesRes] = await Promise.all([
-    fetch(`${baseUrl}/api/notes/${encodedSlug}`, { cache: "no-store" }),
-    fetch(`${baseUrl}/api/notes`, { cache: "no-store" }),
+  const [noteData, notesData] = await Promise.all([
+    fetchApiJson<
+      {
+        note: { meta: NoteMeta; body: string };
+        toc: { id: string; text: string; level: number }[];
+      } | null
+    >(`/api/notes/${encodedSlug}`, undefined, { allowNotFound: true }),
+    fetchApiJson<{ notes: NoteMeta[] }>("/api/notes"),
   ]);
 
-  if (noteRes.status === 404) {
+  if (!noteData) {
     notFound();
   }
-
-  if (!noteRes.ok) {
-    throw new Error(`Failed to load note: ${slug}`);
-  }
-
-  const noteData = await noteRes.json();
-  const notesData = await notesRes.json();
   const note = noteData.note;
   const toc = noteData.toc ?? [];
   const notes = notesData.notes ?? [];

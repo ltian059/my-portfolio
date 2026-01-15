@@ -1,28 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getBaseUrl } from "@/lib/api/base-url";
+import { fetchApiJson } from "@/lib/api/base-url";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
 import type { HomeData } from "@/data/pages/home";
 
 export default async function Home() {
-  const baseUrl = await getBaseUrl();
-  const [homeRes, notesRes] = await Promise.all([
-    fetch(`${baseUrl}/api/home`, { cache: "no-store" }),
-    fetch(`${baseUrl}/api/notes`, { cache: "no-store" }),
+  const [homeData, notesData] = await Promise.all([
+    fetchApiJson<HomeData>("/api/home"),
+    fetchApiJson<{ notes: NoteMeta[] }>("/api/notes"),
   ]);
-
-  // Guard against API errors so we don't parse HTML as JSON.
-  if (!homeRes.ok) {
-    throw new Error(`Failed to load home data (${homeRes.status}).`);
-  }
-  if (!notesRes.ok) {
-    throw new Error(`Failed to load notes data (${notesRes.status}).`);
-  }
-
-  const homeData = (await homeRes.json()) as HomeData;
-  // Type notes payload for safe mapping in the UI.
-  const notesData = (await notesRes.json()) as { notes: NoteMeta[] };
 
   const {
     hero,

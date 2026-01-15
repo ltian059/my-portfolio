@@ -19,6 +19,8 @@ const NOTES_DIR = (() => {
   return found ?? candidates[0];
 })();
 
+const NOTE_INDEX = "index.mdx";
+
 export type NoteMeta = {
   slug: string;
   title: string;
@@ -70,15 +72,54 @@ function parseMeta(slug: string, data: Record<string, unknown>): NoteMeta {
   };
 }
 
+function resolveNoteFolderMdxPath(folderName: string) {
+  // Prefer index.mdx, then <slug>.mdx, then a single .mdx file if present.
+  const indexPath = path.join(NOTES_DIR, folderName, NOTE_INDEX);
+  if (fs.existsSync(indexPath)) return indexPath;
+
+  const namedPath = path.join(NOTES_DIR, folderName, `${folderName}.mdx`);
+  if (fs.existsSync(namedPath)) return namedPath;
+
+  const files = fs
+    .readdirSync(path.join(NOTES_DIR, folderName))
+    .filter((entry) => entry.endsWith(".mdx"));
+  if (files.length === 1) {
+    return path.join(NOTES_DIR, folderName, files[0]);
+  }
+
+  return null;
+}
+
+function resolveNoteMdxPath(slug: string) {
+  // Prefer per-note folders with index.mdx, but allow flat .mdx as fallback.
+  const folderPath = resolveNoteFolderMdxPath(slug);
+  if (folderPath) return folderPath;
+  return path.join(NOTES_DIR, `${slug}.mdx`);
+}
+
 export function getAllNotes(): NoteMeta[] {
-  // Scan the directory for .mdx files and parse frontmatter.
-  const files = fs.readdirSync(NOTES_DIR).filter((f) => f.endsWith(".mdx"));
-  const notes = files.map((file) => {
-    const slug = file.replace(/\.mdx$/, "");
-    const fullPath = path.join(NOTES_DIR, file);
+  // Scan for per-note folders and flat .mdx files.
+  const entries = fs.readdirSync(NOTES_DIR, { withFileTypes: true });
+  const slugMap = new Map<string, NoteMeta>();
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const fullPath = resolveNoteFolderMdxPath(entry.name);
+    if (!fullPath) continue;
     const { data } = readMdxFile(fullPath);
-    return parseMeta(slug, data);
-  });
+    slugMap.set(entry.name, parseMeta(entry.name, data));
+  }
+
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith(".mdx")) continue;
+    const slug = entry.name.replace(/\.mdx$/, "");
+    if (slugMap.has(slug)) continue;
+    const fullPath = path.join(NOTES_DIR, entry.name);
+    const { data } = readMdxFile(fullPath);
+    slugMap.set(slug, parseMeta(slug, data));
+  }
+
+  const notes = Array.from(slugMap.values());
 
   // Sort by priority (smaller is higher priority), then by date desc.
   return notes.sort((a, b) => {
@@ -90,7 +131,7 @@ export function getAllNotes(): NoteMeta[] {
 }
 
 export function getNoteBySlug(slug: string): NoteContent | null {
-  const fullPath = path.join(NOTES_DIR, `${slug}.mdx`);
+  const fullPath = resolveNoteMdxPath(slug);
   if (!fs.existsSync(fullPath)) return null;
 
   const { data, content } = readMdxFile(fullPath);

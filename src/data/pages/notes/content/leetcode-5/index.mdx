@@ -143,7 +143,7 @@ From the recurrence equation, we can find that current state $f[i][j]$ only depe
 
 - When using 1-dimensional DP array, we override the `next unuseful state value` with `current state value` . For the outer loop, we still depend on the next state, so we should iterate in reverse order. For the inner loop, we depend on the `previous`  state, so we should iterate in ascending order. But when using rolling array, the previous state is always **overridden by the current state.** In order to use the correct state value, we need to iterate in reverse order for the inner loop when using 1-dimensional rolling array.
 
-![e85b1ffb0aec87e7936c952251bbd97.jpg](attachment:40c50168-1268-471a-b6ba-3de8cb411111:e85b1ffb0aec87e7936c952251bbd97.jpg)
+![e85b1ffb0aec87e7936c952251bbd97.jpg](e85b1ffb0aec87e7936c952251bbd97.jpg)
 
 - From the illustration above, we can see what will happen if we iterate in ascending order when using a 1-dimensional array. We should update $f[3][4]$ with $f[4][3] == false$, but in 1-dimensional array, we updated $f[3] = true$ first, and it overrides the previous state, now when we want to update $f[4]$, we are calculating it based on the current state’s $f[3]$. That’s why we should iterate the inner loop in reverse order.
 
@@ -189,7 +189,7 @@ $$
 
 f(i, j) =
 \begin{cases}
-\text{true} & \text{if} i = j \\
+\text{true} & \text{if } i = j \\
 (S_i = S_{i+1}) & \text{if } j = i+1 \\
 f(i+1, j-1) \land (S_i = S_j) & \text{if } j > i+1
 \end{cases}

@@ -28,10 +28,34 @@ function rehypeExternalLinks() {
   };
 }
 
+function rehypeNoteImages(options: { slug: string }) {
+  return (tree: Root) => {
+    // Rewrite relative image sources to the note assets API.
+    visit(tree, "element", (node: any) => {
+      if (node.tagName !== "img") return;
+      const src = node.properties?.src;
+      if (typeof src !== "string") return;
+      if (src.startsWith("/") || src.includes(":")) return;
+      node.properties = node.properties ?? {};
+      // Drop leading "./" so the API path stays clean and predictable.
+      const normalized = src.replace(/^\.\/+/, "");
+      node.properties.src = `/api/notes-assets/${options.slug}/${normalized}`;
+    });
+  };
+}
+
+function resolveCoverImage(slug: string, coverImage?: string) {
+  // Leave absolute URLs intact, rewrite relative paths to the assets API.
+  if (!coverImage) return undefined;
+  if (coverImage.startsWith("/") || coverImage.includes(":")) return coverImage;
+  return `/api/notes-assets/${slug}/${coverImage}`;
+}
+
 function rehypeSlugifyHeadings() {
   return (tree: Root) => {
     visit(tree, "element", (node: any) => {
       if (!node.tagName || !/^h[1-6]$/.test(node.tagName)) return;
+      if (!Array.isArray(node.children)) return;
       // Keep the slugging logic aligned with TOC generation.
       const text = node.children
         ?.filter(
@@ -46,6 +70,22 @@ function rehypeSlugifyHeadings() {
         node.properties.id = slugify(text, { lower: true, strict: true });
       }
     });
+  };
+}
+
+function rehypeNormalizeChildren() {
+  const normalize = (node: any) => {
+    if (!node || typeof node !== "object") return;
+    if (!Array.isArray(node.children)) return;
+    node.children = node.children.filter(Boolean);
+    for (const child of node.children) {
+      normalize(child);
+    }
+  };
+
+  return (tree: Root) => {
+    // Drop any undefined/null nodes to avoid MDX compile errors.
+    normalize(tree);
   };
 }
 
@@ -69,6 +109,7 @@ export default async function NotePage({ params }: PageProps) {
   const note = noteData.note;
   const toc = noteData.toc ?? [];
   const notes = notesData.notes ?? [];
+  const coverImage = resolveCoverImage(note.meta.slug, note.meta.coverImage);
 
   return (
     <div className="mx-auto w-full max-w-[88rem] px-4 py-16">
@@ -131,10 +172,10 @@ export default async function NotePage({ params }: PageProps) {
           ))}
         </div>
 
-        {note.meta.coverImage ? (
+        {coverImage ? (
           <div className="mt-6">
             <img
-              src={note.meta.coverImage}
+              src={coverImage}
               alt={note.meta.title}
               className="h-auto w-full rounded-2xl"
               loading="lazy"
@@ -151,8 +192,9 @@ export default async function NotePage({ params }: PageProps) {
                 // Enable math first, then add GFM features (tables, task lists, etc.).
                 remarkPlugins: [remarkMath, remarkGfm],
                 rehypePlugins: [
-                  rehypeSlugifyHeadings,
+                rehypeSlugifyHeadings,
                   rehypeExternalLinks,
+                  [rehypeNoteImages, { slug: note.meta.slug }],
                   // Render inline/block math with KaTeX.
                   rehypeKatex,
                   // Render fenced code blocks with consistent themes.
@@ -165,6 +207,8 @@ export default async function NotePage({ params }: PageProps) {
                       },
                     },
                   ],
+                  // Keep this last to scrub undefined nodes introduced by other plugins.
+                  rehypeNormalizeChildren,
                 ],
               },
             }}

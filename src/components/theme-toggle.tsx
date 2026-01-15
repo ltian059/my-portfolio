@@ -1,33 +1,70 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "theme";
+const THEME_CHANGE_EVENT = "theme-change";
 
 type Theme = "light" | "dark";
 
+function parseTheme(value: string | null): Theme | null {
+  if (value === "light" || value === "dark") return value;
+  return null;
+}
+
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";
-  const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
-  if (stored === "light" || stored === "dark") return stored;
+  const stored = parseTheme(window.localStorage.getItem(STORAGE_KEY));
+  if (stored) return stored;
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof document === "undefined") return "light";
+    return document.documentElement.classList.contains("dark")
+      ? "dark"
+      : getInitialTheme();
+  });
+  const themeRef = useRef<Theme>(theme);
+  const didInitRef = useRef(false);
 
   useEffect(() => {
-    const initialTheme = getInitialTheme();
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
-  }, []);
-
-  useEffect(() => {
+    themeRef.current = theme;
     document.documentElement.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem(STORAGE_KEY, theme);
+    if (didInitRef.current) {
+      window.dispatchEvent(
+        new CustomEvent<Theme>(THEME_CHANGE_EVENT, { detail: theme })
+      );
+    } else {
+      didInitRef.current = true;
+    }
   }, [theme]);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY) return;
+      const nextTheme = parseTheme(event.newValue);
+      if (!nextTheme || nextTheme === themeRef.current) return;
+      setTheme(nextTheme);
+    };
+
+    const onThemeChange = (event: Event) => {
+      const nextTheme = (event as CustomEvent<Theme>).detail;
+      if (!nextTheme || nextTheme === themeRef.current) return;
+      setTheme(nextTheme);
+    };
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(THEME_CHANGE_EVENT, onThemeChange);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(THEME_CHANGE_EVENT, onThemeChange);
+    };
+  }, []);
 
   const nextTheme: Theme = theme === "dark" ? "light" : "dark";
 

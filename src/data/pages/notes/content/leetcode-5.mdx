@@ -1,0 +1,372 @@
+---
+title: "Longest palindromic Substring"
+date: "2026-01-15"
+tags: ["string", "algorithms", "dynamic programming"]
+summary: "Dynamic programming approach to find the longest palindromic substring in a given string."
+priority: 3
+coverImage: ""
+---
+
+# Intuition
+
+- Brute Force: Iterate every substring starting from each index $[0, n - 1]$, check if the substring is a palindrome. This will result in $O(n^3)$ time complexity, as enumerating every substring will take $O(n^2)$, and checking a string is palindrome will take $O(k)$, where $k$ is the substring length. Overall, this method is quite slow due to we have to make a separate palindromic check for each substring.
+
+Optimization can be achieved using dynamic programming.
+
+# Solution 1: DP
+
+- Optimization:
+    - Think about the most important attribute for a **palindromic string:**
+        - if a string is palindrome, after deleting its first and last letter, the remaining string will also be a palindrome. For example, `ababa` is a palindrome. After deleting the leading `a` and tailing `a` , `bab` is also a palindrome. Again, delete both `b` , the remaining `a` itself is also a palindrome.
+    - This could direct us to a dynamic programming solution. For a given starting index $i$ and ending index $j$, a string $s[i, j]$ is a palindrome, if and only if $s[i] == s[j]$ and $s[i + 1, j - 1]$ is a palindrome. We can deduce the recurrence relation:
+    
+    $$
+    f[i][j] = f[i + 1][j - 1] \land s[i] = s[j]
+    $$
+    
+    We can deduce the recurrence relation: $f[i][j]=f[i+1][j-1]
+    \land s[i]=s[j]$. This shows a recursive dependency, where $f[i][j]$ depends on $f[i+1][j-1]$, which in turn depends on $f[i+2][j-2]$, and so on, until a base case is reached.
+    
+- From the recurrence relation, it’s easy to know that at the end it will result in a single or two identical characters, which is the center of the palindrome.
+    - For odd length palindrome (e.g. `ababa` ), it will result in a single character `a` .
+    - For even length palindrome (e.g. `abba` ), it will result in two identical characters `bb` .
+- Boundaries:
+    - For string of length $1$ $(i==j)$ and $2(j = i + 1)$, the substring $s[i+1, j -1]$ would have an invalid length (0 or negative), so these are our base cases.
+    - A palindrome can have odd length or even length. The distinction is crucial for defining their ‘center’ from which they expand. For example, an odd-length palindrome like `ababa` has a single character center `a` , while an even-length palindrome like `abba`has a two-character center `bb`. The above recurrence relation $f[i][j]=f[i+1][j-1] \land s[i] == s[j]$ naturally handles this by recursively shrinking the string towards its center.
+    - In the DP approach, we explicitly handle base cases for substring length $1(f[i][i] = true)$and length $2(f[i][i+1] = (s[i] == s[i+1]))$
+
+- DP iteration order:
+    - Take a look at the recurrence equation, we can discover that the current state $f[i][j]$ depends on $f[i+1][j-1]$, where $i + 1$ is the next state, $j-1$ is the previous state. We can draw the recurrence relation matrix to find out that:
+        
+        $$
+        F =
+        \begin{bmatrix}
+        f[0][0] & f[0][1] & \cdots & f[0][j] & \cdots & f[0][n - 1] \\
+        & f[1][1] & \cdots & f[1][j] & \cdots & f[1][n - 1] \\
+        \vdots & & \ddots & \vdots & & \vdots \\
+        & & &  f[i][j] & \cdots & f[i][n - 1] \\
+        & & f[i+1][j-1]\nearrow & \cdots &  & & \vdots \\
+        & & & & \cdots & f[n - 1][n - 1]
+        \end{bmatrix}
+        $$
+        
+    - From the matrix we can see that, if we want to calculate the state $f[i][1]$, we need the state $f[i+1][0]$. This tells us we need to calculate $f[i+1][0]$ first. So for the outer loop $i$, we need to iterate in reversed order. For the inner loop $j$, we need to iterate in ascending order.
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        char[] ch = s.toCharArray();
+        int n = ch.length;
+        int maxLen = 1; //The current longest palindromic string length.
+        int left = 0, right = 0; //The starting index and ending index of the longest palindromic string.
+        boolean[][] f = new boolean[n][n];
+        //Initialization
+        f[n - 1][n - 1] = true; 
+        //Starting from index n - 2, because we cannot iterate when starting index is n - 1.
+
+        for(int i = n - 2; i >= 0; i--){
+            f[i][i] = true; //Consider string of length 1 always a palindrome.
+            for(int j = i + 1; j < n; j++){
+                //Consider string of length 2
+                if(j - i == 1 && ch[i] == ch[j]){
+                    f[i][j] = true;
+                }else{
+                    //Consider string length > 2
+                    f[i][j] = (f[i + 1][j - 1]) && (ch[i] == ch[j]);
+                }
+                if(f[i][j] && j - i + 1 > maxLen){
+                    left = i;
+                    right = j;
+                    maxLen = j - i + 1;
+                }
+            }
+        }
+        return s.substring(left, right + 1);
+    }
+}
+```
+
+The above code can be faster by initializing cases when string length is 2 so that we don’t need to check the `j - i == 1` for $O(n^2)$ times but only $O(n)$ times. This solution is $20ms$ faster than the previous solution.
+
+## Optimization 1: Less conditional check
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        char[] ch = s.toCharArray();
+        int n = ch.length;
+        int maxLen = 1; //The current longest palindromic string length.
+        int left = 0, right = 0; //The starting index and ending index of the longest palindromic string.
+        boolean[][] f = new boolean[n][n];
+        //Initialization
+        f[n - 1][n - 1] = true; 
+
+        //Consider string length of 2;
+        for(int i = 0; i < n - 1; i++){
+            if(ch[i] == ch[i + 1]){
+                f[i][i + 1] = true;
+                if(maxLen < 2){
+                    maxLen = 2;
+                    left = i;
+                    right = i + 1;
+                }
+            }
+        }
+        //Starting from index n - 2, because we cannot iterate when starting index is n - 1.
+
+        for(int i = n - 2; i >= 0; i--){
+            f[i][i] = true; //Consider string of length 1 always a palindrome.
+            for(int j = i + 2; j < n; j++){
+                //Consider string length > 2
+                f[i][j] = (f[i + 1][j - 1]) && (ch[i] == ch[j]);
+                if(f[i][j] && j - i + 1 > maxLen){
+                    left = i;
+                    right = j;
+                    maxLen = j - i + 1;
+                }
+            }
+        }
+        return s.substring(left, right + 1);
+    }
+}
+```
+
+### Complexity
+
+- Time Complexity: $O(n^2)$
+
+- Space Complexity: $O(n^2)$
+
+## Optimization 2: Rolling array
+
+From the recurrence equation, we can find that current state $f[i][j]$ only depends on the next state$f[i+1][j-1]$. We can use a 1-dimensional array to optimize the previous solution. Here, we need to be cautious about the iteration order of the inner loop. 
+
+- When using 1-dimensional DP array, we override the `next unuseful state value` with `current state value` . For the outer loop, we still depend on the next state, so we should iterate in reverse order. For the inner loop, we depend on the `previous`  state, so we should iterate in ascending order. But when using rolling array, the previous state is always **overridden by the current state.** In order to use the correct state value, we need to iterate in reverse order for the inner loop when using 1-dimensional rolling array.
+
+![e85b1ffb0aec87e7936c952251bbd97.jpg](attachment:40c50168-1268-471a-b6ba-3de8cb411111:e85b1ffb0aec87e7936c952251bbd97.jpg)
+
+- From the illustration above, we can see what will happen if we iterate in ascending order when using a 1-dimensional array. We should update $f[3][4]$ with $f[4][3] == false$, but in 1-dimensional array, we updated $f[3] = true$ first, and it overrides the previous state, now when we want to update $f[4]$, we are calculating it based on the current state’s $f[3]$. That’s why we should iterate the inner loop in reverse order.
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        char[] ch = s.toCharArray();
+        int n = ch.length;
+        int maxLen = 1; //The current longest palindromic string length.
+        int left = 0, right = 0; //The starting index and ending index of the longest palindromic string.
+        boolean[] f = new boolean[n];
+        //Initialization
+        f[n - 1] = true; 
+        //Starting from index n - 2, because we cannot iterate when starting index is n - 1.
+        for(int i = n - 2; i >= 0; i--){
+            f[i] = true; //Consider string of length 1 always a palindrome.
+            for(int j = n - 1; j >= i + 1; j--){
+                //Consider string length >= 2
+                f[j] = j - i == 1 ? ch[i] == ch[j] : f[j - 1] && (ch[i] == ch[j]);
+                if(f[j] && j - i + 1 > maxLen){
+                    left = i;
+                    right = j;
+                    maxLen = j - i + 1;
+                }
+            }
+        }
+        return s.substring(left, right + 1);
+    }
+}
+```
+
+### Complexity
+
+- Time Complexity: $O(n^2)$
+
+- Space Complexity: $O(n)$
+
+# Solution 2: Double Pointers, expanding around center.
+
+If we look into the recurrence equations in Solution 1:
+
+$$
+
+f(i, j) =
+\begin{cases}
+\text{true} & \text{if} i = j \\
+(S_i = S_{i+1}) & \text{if } j = i+1 \\
+f(i+1, j-1) \land (S_i = S_j) & \text{if } j > i+1
+\end{cases}
+
+$$
+
+The recurrence chain:
+
+$$
+f(i, j) \larr f(i+1,j-1) \larr f(i+2, j-2) \larr ... \larr One~ boundary~ condition
+$$
+
+We can find that every $f(i, j)$ can be derived from exactly one boundary condition, either $i ==j$, or $j == i + 1$, or $j > i + 1$. 
+
+This enlightens us that if we expand from each **boundary conditions**, we can eventually obtain all the states. The boundary conditions are the center of a palindromic string. By using this method, we can save the **memory overhead** of using a DP array.
+
+- To apply both situation to the recurrence relation above, we need to discuss the odd and even length palindrome separately. The even length palindrome will exist if and only if $s[i] == s[i + 1]$. For each $s[i]$, we need to do another iteration if $s[i] == s[i + 1]$ to find out the possible longest palindrome expanding from $s[i]$ and $s[i + 1]$.
+
+Simple implementation is that for each index $i$, we discuss the situations where the center length is $1$ or $2$. If the center is palindromic, we expand around it, by moving double pointers $j$ and $k$ $(j < k)$ until $S_j ≠ S_k$. During this process, we update the maximum length and and its according starting $j$ and ending $k$.
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        char[] ch = s.toCharArray();
+        int n = ch.length;
+        int maxLen = 1; //The current longest palindromic string length.
+        int left = 0, right = 0; //starting and ending index of the longest palindromic string.
+
+        for(int i = 0; i < n; i++){
+            int j = i, k = i;
+            while(j >= 0 && k < n && ch[j] == ch[k]){
+                j--;
+                k++;
+            }
+            if(maxLen < k - j - 1){
+                maxLen = k - j - 1;
+                left = j + 1;
+                right = k - 1;
+            }
+            //Consider expanding from length 2.
+            j = i; 
+            k = i + 1;
+            while(j >= 0 && k < n && ch[j] == ch[k]){
+                j--;
+                k++;
+            }
+            if(maxLen < k - j - 1){
+                maxLen = k - j - 1;
+                left = j + 1;
+                right = k - 1;
+            }
+        }
+        return s.substring(left, right + 1);
+    }
+}
+```
+
+- Time complexity: $O(n^2)$
+    
+    For each index, we expand around it, which could take at most $n$ steps. Given $n$ indices, the worst case is $O(n^2)$. But in reality, it is much faster than DP solution since it  can stop during expanding.
+    
+- Space complexity: $O(1)$
+
+## Optional optimization: Simplify code
+
+We can unify the code by extracting the core logic into a method: `expandAroundCenter` , which returns the maximum palindrome length of the current expanding.
+
+We don’t even need to save the `left` and `right` indices. By using the current center index $i$ and the length of maximum palindrome $len$, we can calculate the $left$ and $right$ indices.
+
+How to calculate the $left$ using $i$ and $len$?
+
+Consider a string `ababa` ,when $i = 2$, $len$ = 5, $left$ should be $0$, $right$ should be $4$.
+
+During **each step**, $left$ and $right$ move $1$ step. Assuming $left$ moved $x$ step, so does $right$. The total $step = 2*x + 1 = len$, where $1$ represent the center character. So we have:
+
+$$
+len = 2x + 1
+$$
+
+$$
+x = \frac{len-1}{2}
+$$
+
+Also, it is clear that:
+
+$$
+\begin{cases}
+left = i - x = i - \frac{len-1}{2}\\
+right = i + x = i + \frac{len-1}{2}\\
+\end{cases}
+\quad \text{if len is odd}
+$$
+
+However, consider `abba` , we have to expand from $i=1$ and $i = 2$, resulting $len = 4$. Here, we have:
+
+$$
+\begin{cases}
+i - x = left\\
+i + 1 + x = right\\
+2x + 2 = len
+\end{cases}
+$$
+
+$$
+\begin{cases}x = \frac{len - 2}{2}\\left = i - \frac{len - 2}{2}\\right = i + 1 + \frac{len - 2}{2}\end{cases}
+$$
+
+Simplify the equations:
+
+$$
+\begin{cases}
+left = i - \frac{len - 2}{2} \\
+right = i + \frac{len}{2}
+\end{cases}
+\quad \text{if } \text{len is even}
+$$
+
+So, in cases where $len$ is odd and even, we have:
+
+$$
+\begin{align*}
+&\begin{cases}
+left = i - \frac{len-1}{2}\\
+right = i + \frac{len-1}{2}\\
+\end{cases}
+&\quad \text{if len is odd}
+\\
+&\begin{cases}
+left = i - \frac{len - 2}{2} \\
+right = i + \frac{len}{2}
+\end{cases}
+&\quad \text{if } \text{len is even}
+\end{align*}
+$$
+
+How to unify the equations so that they can be applied to both situations when $len$ is odd and even? 
+
+When $\text{len is even}$, $\frac{len-2}{2} == \frac{len - 1}{2}$, due to integer’s division will automatically floor the result.
+
+Similarly, when $\text{len is odd}$, $\text{len - 1}$ is even, $\frac{len -1}{2} == \frac{len}{2}$.
+
+**So we have the unified equation:**
+
+$$
+\begin{align*}&\begin{cases}left = i - \frac{len - 1}{2} \\right = i + \frac{len}{2}\end{cases}\end{align*}
+$$
+
+Moreover, we don’t even need the $right$ to store the ending index. As long as we have $left$ and $maxLen$, we can directly have $right$.
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        char[] ch = s.toCharArray();
+        int n = ch.length;
+        int maxLen = 1; //The current longest palindromic string length.
+        int left = 0; //starting index of the current longest palindrome.
+
+        for(int i = 0; i < n; i++){
+            int len1 = expandAroundCenter(ch, i, i);
+            int len2 = expandAroundCenter(ch, i, i + 1);
+            int len = Math.max(len1, len2);
+            if(maxLen < len){
+                left = i - (len - 1) / 2;
+                maxLen = len;
+            }
+        }
+        return s.substring(left, left + maxLen);
+    }
+    private int expandAroundCenter(char[] s, int j, int k){
+        while(j >= 0 && k < s.length && s[j] == s[k]){
+            j--;
+            k++;
+        }
+        return k - j - 1;
+    }
+}
+```
+
+- Time complexity: $O(n^2)$
+- Space Complexity: $O(1)$

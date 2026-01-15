@@ -1,0 +1,35 @@
+export type EducationItem = {
+  school: string;
+  degree: string;
+  period: string;
+  location: string;
+  highlights: string[];
+};
+
+export const educationSection = {
+  id: "education",
+  title: "Education",
+  subtitle: "Academic background and focus areas.",
+  items: [
+    {
+      school: "Example University",
+      degree: "M.S. in Computer Science",
+      period: "2023 - 2025",
+      location: "City, Country",
+      highlights: [
+        "Focus on distributed systems, cloud computing, and applied machine learning.",
+        "Coursework: Advanced Algorithms, Database Systems, and Cloud Infrastructure.",
+      ],
+    },
+    {
+      school: "Example Institute of Technology",
+      degree: "B.S. in Software Engineering",
+      period: "2019 - 2023",
+      location: "City, Country",
+      highlights: [
+        "Built a strong foundation in systems design, data structures, and web development.",
+        "Led a capstone project on high-availability service architecture.",
+      ],
+    },
+  ],
+};

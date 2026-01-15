@@ -8,7 +8,7 @@ import {
   notesSection,
 } from "@/data/pages/home";
 import { notesPage } from "@/data/pages/notes/page";
-import { experiencePage } from "@/data/pages/experience/page";
+import { experiencePage, experienceSections } from "@/data/pages/experience";
 import { getAllNotes, getNoteBySlug } from "@/lib/notes/reader";
 import { generateToc } from "@/lib/notes/toc";
 
@@ -47,9 +47,10 @@ export function GET(request: Request) {
     },
     [experiencePage.path]: {
       title: experiencePage.title,
-      items: [
-        { label: experiencePage.sideNavLabel, href: `#${experiencePage.anchorId}` },
-      ],
+      items: experienceSections.map((section) => ({
+        label: section.title,
+        href: `#${section.id}`,
+      })),
     },
   };
 

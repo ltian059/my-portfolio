@@ -13,17 +13,30 @@ export type TechStackGroup = {
 export const techStack: TechStackGroup[] = [
   {
     label: "Backend",
-    items: ["Java", "Spring Boot", "MySQL", "Redis", "Kafka"],
+    items: [
+      "Java",
+      "Spring Boot",
+      "Spring Cloud",
+      "REST APIs",
+      "JWT/Spring Security",
+      "Swagger/OpenAPI",
+    ],
   },
   {
-    label: "Infra",
-    items: ["Docker", "Kubernetes", "Nginx", "Linux"],
+    label: "Cloud & DevOps",
+    items: [
+      "AWS (EC2, RDS, DynamoDB, Lambda, SQS)",
+      "CloudFormation",
+      "Docker",
+      "Linux",
+      "GitHub Actions (CI/CD)",
+    ],
   },
   {
-    label: "Frontend",
-    items: ["Next.js", "TypeScript", "React"],
+    label: "Data & Search",
+    items: ["PostgreSQL", "MySQL", "Redis", "Elasticsearch"],
   },
 ];
 
 export const focusNote =
-  "Current focus: service governance, domain modeling, observability, frontend engineering.";
+  "Current focus: backend architecture, system design, service governance, and observability.";

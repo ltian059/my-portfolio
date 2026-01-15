@@ -1,19 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
+import { getBaseUrl } from "@/lib/api/base-url";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
 import type { HomeData } from "@/data/pages/home";
-
-async function getBaseUrl() {
-  const headerList = await headers();
-  const protocol = headerList.get("x-forwarded-proto") ?? "http";
-  const host =
-    headerList.get("x-forwarded-host") ??
-    headerList.get("host") ??
-    "localhost:3000";
-  return `${protocol}://${host}`;
-}
 
 export default async function Home() {
   const baseUrl = await getBaseUrl();
@@ -42,11 +32,14 @@ export default async function Home() {
   const featuredNotes = (notesData.notes ?? []).slice(0, 3);
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_60%)] blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-48 right-0 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(14,116,144,0.18),transparent_60%)] blur-3xl" />
+    <div className="relative">
+      {/* Background glow layer with clipping to prevent horizontal scroll. */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_60%)] blur-3xl" />
+        <div className="absolute -bottom-48 right-0 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(14,116,144,0.18),transparent_60%)] blur-3xl" />
+      </div>
 
-      <main className="relative mx-auto w-full max-w-5xl px-6 py-16">
+      <main className="relative mx-auto w-full max-w-5xl px-6 pb-16 pt-10">
 
         {/* #####################  Hero Section Avatar #######################*/}
         <section id={hero.id} className="grid gap-10 md:grid-cols-[220px,1fr] md:items-center">

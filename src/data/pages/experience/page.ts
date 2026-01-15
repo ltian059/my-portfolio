@@ -8,6 +8,6 @@ export const experiencePage = {
     summary:
       "Backend engineer with hands-on experience in Java Spring Boot microservices, AWS services, and DevOps automation.",
     callout:
-      "Seeking junior software engineer or backend roles. Eligible to work in Canada under PGWP until 2028.",
+      "Starting working in Trend Micro since February 2026 as a Software Developer.",
   },
 };

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import SideNav from "./side-nav";
+import { notesPage } from "@/data/pages/notes/page";
 type SideNavConfig = {
   title?: string;
   items: { label: string; href: string }[];
@@ -16,7 +17,7 @@ type SideNavState = {
 export default function SideDrawer() {
   const pathname = usePathname();
   // Hide the drawer toggle on large Notes pages where the TOC is always visible.
-  const hideOnXl = pathname?.startsWith("/notes/");
+  const hideOnXl = pathname?.startsWith(`${notesPage.listHref}/`);
   // Holds side nav config fetched from the API.
   const [sideNavState, setSideNavState] = useState<SideNavState | null>(null);
   const config = pathname ? sideNavState?.sideNavByPath[pathname] : undefined;

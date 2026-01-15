@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
+import { notesPage } from "@/data/pages/notes/page";
+import type { NoteMeta } from "@/lib/notes/reader";
+import type { HomeData } from "@/data/pages/home";
 
 async function getBaseUrl() {
   const headerList = await headers();
@@ -19,8 +22,9 @@ export default async function Home() {
     fetch(`${baseUrl}/api/notes`, { cache: "no-store" }),
   ]);
 
-  const homeData = await homeRes.json();
-  const notesData = await notesRes.json();
+  const homeData = (await homeRes.json()) as HomeData;
+  // Type notes payload for safe mapping in the UI.
+  const notesData = (await notesRes.json()) as { notes: NoteMeta[] };
 
   const {
     hero,
@@ -74,7 +78,7 @@ export default async function Home() {
             {/* Resume Button */}
             <div className="flex flex-wrap items-center justify-center gap-3">
               <a
-                href={hero.resumeFile}
+                href={hero.resumeHref}
                 download={hero.resumeDownloadName}
                 className="inline-flex h-11 items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
@@ -82,7 +86,7 @@ export default async function Home() {
               </a>
               {/* Notes Button */}
               <Link
-                href="/notes"
+                href={hero.notesHref}
                 className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-white/[.08]"
               >
                 {hero.notesLabel}
@@ -91,11 +95,10 @@ export default async function Home() {
           
               {/* Experience Button */}
               <Link
-              href="/experience"
-              className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
+                href={hero.experienceHref}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-black/[.08] px-5 text-sm font-medium text-zinc-950 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
               >
-                View
-                Full Experience
+                {hero.experienceLabel}
               </Link>
 
             </div>
@@ -123,7 +126,7 @@ export default async function Home() {
                 {resumeSection.title}
               </h2>
               <Link
-                href="/experience"
+                href={resumeSection.linkHref}
                 className="text-sm text-emerald-700 hover:underline dark:text-emerald-300"
               >
                 {resumeSection.linkLabel}
@@ -228,10 +231,10 @@ export default async function Home() {
               {notesSection.title}
             </h2>
             <Link
-              href="/notes"
+              href={notesSection.linkHref}
               className="text-sm text-emerald-700 hover:underline dark:text-emerald-300"
             >
-              More →
+              {notesSection.linkLabel}
             </Link>
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-3">
@@ -269,7 +272,7 @@ export default async function Home() {
                     {note.summary}
                   </p>
                   <Link
-                    href={`/notes/${note.slug}`}
+                    href={`${notesPage.listHref}/${note.slug}`}
                     className="text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300"
                   >
                     Read note →

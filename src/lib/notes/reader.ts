@@ -1,5 +1,5 @@
 /**
- * @file Reader for MDX notes stored under src/data/notes.
+ * @file Reader for MDX notes stored under src/data/pages/notes/content.
  * These helpers run on the server to read files and parse frontmatter.
  */
 
@@ -10,8 +10,8 @@ import matter from "gray-matter";
 const NOTES_DIR = (() => {
   const cwd = process.cwd();
   const candidates = [
-    path.join(cwd, "src", "data", "notes"),
-    path.join(cwd, "data", "notes"),
+    path.join(cwd, "src", "data", "pages", "notes", "content"),
+    path.join(cwd, "data", "pages", "notes", "content"),
   ];
 
   // Prefer the first existing path so the reader works even if dev runs from /src.

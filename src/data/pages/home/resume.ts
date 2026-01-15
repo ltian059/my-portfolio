@@ -2,9 +2,18 @@ export const resumeSection = {
   id: "resume",
   title: "Resume Highlights",
   linkLabel: "Full experience →",
+  linkHref: "/experience",
 };
 
-export const resumeHighlights = [
+// Type for each resume highlight card.
+export type ResumeHighlight = {
+  role: string;
+  period: string;
+  summary: string;
+  bullets: string[];
+};
+
+export const resumeHighlights: ResumeHighlight[] = [
   {
     role: "Senior Backend Engineer · Tech Company",
     period: "2022 — Present",

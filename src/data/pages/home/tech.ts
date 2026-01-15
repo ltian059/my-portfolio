@@ -4,7 +4,13 @@ export const techSection = {
   subtitle: "Business delivery first, continuously improving full-stack skills.",
 };
 
-export const techStack = [
+// Type for each tech stack group.
+export type TechStackGroup = {
+  label: string;
+  items: string[];
+};
+
+export const techStack: TechStackGroup[] = [
   {
     label: "Backend",
     items: ["Java", "Spring Boot", "MySQL", "Redis", "Kafka"],

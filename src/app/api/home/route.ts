@@ -10,7 +10,7 @@ import {
   stats,
   techSection,
   techStack,
-} from "@/data/home";
+} from "@/data/pages/home";
 
 export function GET() {
   return NextResponse.json({

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { notesPage } from "@/data/pages/notes/page";
+import type { NoteMeta } from "@/lib/notes/reader";
 
 export const metadata = {
-  title: "Notes",
-  description: "Practice Notes and Study Records",
+  title: notesPage.title,
+  description: notesPage.description,
 };
 
 async function getBaseUrl() {
@@ -20,17 +22,17 @@ export default async function NotesPage() {
   const baseUrl = await getBaseUrl();
   const res = await fetch(`${baseUrl}/api/notes`, { cache: "no-store" });
   const data = await res.json();
-  const sortedNotes = data.notes ?? [];
+  const sortedNotes = (data.notes ?? []) as NoteMeta[];
 
   
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <header className="space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-          Notes
+          {notesPage.title}
         </h1>
         <p className="text-zinc-600 dark:text-zinc-400">
-          This section contains practice notes, study records, and some reusable templates.
+          {notesPage.description}
         </p>
       </header>
 
@@ -52,7 +54,7 @@ export default async function NotesPage() {
             ) : null}
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <Link
-                href={`/notes/${note.slug}`}
+                href={`${notesPage.listHref}/${note.slug}`}
                 className="text-lg font-medium text-zinc-950 hover:underline dark:text-zinc-50"
               >
                 {note.title}

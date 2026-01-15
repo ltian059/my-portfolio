@@ -38,12 +38,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} min-h-screen antialiased`}
       >
         <header className="fixed inset-x-0 top-0 z-40 border-b border-black/[.08] bg-white/90 backdrop-blur dark:border-white/[.145] dark:bg-[#202126]">
-          <div className="mx-auto flex w-full max-w-5xl items-center px-6 py-4">
+          <div className="flex w-full items-center px-8 py-4">
             <div className="flex flex-1 items-center gap-3">
               <SideDrawer />
               <Link
                 href="/"
-                className="font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+                className="hidden font-semibold tracking-tight text-zinc-950 dark:text-zinc-50 sm:inline-flex"
               >
                 Home
               </Link>

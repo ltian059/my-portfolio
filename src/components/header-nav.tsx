@@ -73,7 +73,7 @@ export default function HeaderNav() {
         <button
           type="button"
           onClick={() => setIsOpen((open) => !open)}
-          className="w-full rounded-full border border-emerald-300/80 bg-white/95 px-4 py-2 pr-10 text-left text-sm font-semibold text-zinc-900 shadow-[0_6px_18px_rgba(16,185,129,0.18)] backdrop-blur transition hover:border-emerald-400 hover:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300/70 dark:border-emerald-400/50 dark:bg-white/[.08] dark:text-zinc-100 dark:hover:border-emerald-300/80 dark:focus:ring-emerald-400/50"
+          className="w-full rounded-full border border-emerald-300/80 bg-white/95 px-4 py-2 pr-10 text-left text-sm font-semibold text-zinc-900 shadow-[0_6px_18px_rgba(16,185,129,0.18)] backdrop-blur transition hover:border-emerald-400 hover:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300/70 dark:border-emerald-400/50 dark:bg-white/[.08] dark:text-zinc-100 dark:hover:bg-white/[.12] dark:hover:border-emerald-300/80 dark:focus:ring-emerald-400/50"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >

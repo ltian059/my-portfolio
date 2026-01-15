@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 
 export const metadata = {
   title: "Notes",
-  description: "刷题笔记与学习记录",
+  description: "Practice Notes and Study Records",
 };
 
 async function getBaseUrl() {
@@ -30,7 +30,7 @@ export default async function NotesPage() {
           Notes
         </h1>
         <p className="text-zinc-600 dark:text-zinc-400">
-          这里放刷题笔记、学习记录和一些可复用的模板。
+          This section contains practice notes, study records, and some reusable templates.
         </p>
       </header>
 

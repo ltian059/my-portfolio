@@ -15,6 +15,8 @@ type SideNavState = {
 
 export default function SideDrawer() {
   const pathname = usePathname();
+  // Hide the drawer toggle on large Notes pages where the TOC is always visible.
+  const hideOnXl = pathname?.startsWith("/notes/");
   // Holds side nav config fetched from the API.
   const [sideNavState, setSideNavState] = useState<SideNavState | null>(null);
   const config = pathname ? sideNavState?.sideNavByPath[pathname] : undefined;
@@ -196,7 +198,9 @@ export default function SideDrawer() {
       <button
         type="button"
         onClick={() => (isOpen ? handleClose() : handleOpen())}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/[.08] text-zinc-700 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-200 dark:hover:bg-white/[.06]"
+        className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/[.08] text-zinc-700 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-200 dark:hover:bg-white/[.06] ${
+          hideOnXl ? "xl:hidden" : ""
+        }`}
         aria-label={isOpen ? "Close navigation" : "Open navigation"}
       >
         {isOpen ? "✕" : "☰"}

@@ -38,7 +38,7 @@ export default async function Home() {
   const featuredNotes = (notesData.notes ?? []).slice(0, 3);
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_60%)] blur-3xl" />
       <div className="pointer-events-none absolute -bottom-48 right-0 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(14,116,144,0.18),transparent_60%)] blur-3xl" />
 

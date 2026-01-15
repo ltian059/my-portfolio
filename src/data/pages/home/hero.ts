@@ -8,7 +8,7 @@ export const hero = {
   summary:
     "Focused on backend system design and business delivery, while strengthening frontend skills to ship stable and maintainable products.",
   resumeLabel: "Download Resume",
-  resumeHref: "/resume.pdf",
+  resumeHref: "/DanielTian_Resume.pdf",
   resumeDownloadName: "DanielTian_Resume.pdf",
   notesLabel: "Tech Notes",
   notesHref: "/notes",

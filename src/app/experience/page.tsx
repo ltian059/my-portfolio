@@ -51,11 +51,11 @@ export default function ExperiencePage() {
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-black/[.08] bg-white/80 shadow-sm dark:border-white/[.15] dark:bg-white/[.06]">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-black/[.08] bg-white/80 p-1.5 shadow-sm dark:border-white/[.15] dark:bg-white/[.06]">
                     <img
                       src={item.logoSrc}
                       alt={item.logoAlt}
-                      className="h-10 w-10"
+                      className="h-full w-full object-contain"
                       loading="lazy"
                       decoding="async"
                     />
@@ -97,11 +97,11 @@ export default function ExperiencePage() {
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-black/[.08] bg-white/80 shadow-sm dark:border-white/[.15] dark:bg-white/[.06]">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-black/[.08] bg-white/80 p-1.5 shadow-sm dark:border-white/[.15] dark:bg-white/[.06]">
                     <img
                       src={item.logoSrc}
                       alt={item.logoAlt}
-                      className="h-10 w-10"
+                      className="h-full w-full object-contain"
                       loading="lazy"
                       decoding="async"
                     />

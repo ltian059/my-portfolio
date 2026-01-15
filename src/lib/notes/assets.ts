@@ -23,5 +23,10 @@ export function resolveNoteAssetUrl(slug: string, assetPath?: string) {
   if (!assetPath) return undefined;
   if (isAbsoluteAssetUrl(assetPath)) return assetPath;
   const normalized = assetPath.replace(/^\.\/+/, "");
-  return `/api/notes-assets/${slug}/${normalized}`;
+  const encodedSlug = encodeURIComponent(slug);
+  const encodedPath = normalized
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  return `/api/notes-assets/${encodedSlug}/${encodedPath}`;
 }

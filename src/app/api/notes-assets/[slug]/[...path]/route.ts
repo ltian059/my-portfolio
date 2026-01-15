@@ -43,8 +43,13 @@ function resolveAssetPath(slug: string, assetPath: string[]) {
   const noteDir = path.join(NOTES_DIR, slug);
   if (assetPath.length === 0) return null;
   const folderAsset = path.join(noteDir, ...assetPath);
-  if (isSafePath(noteDir, folderAsset) && fs.existsSync(folderAsset)) {
+  if (!isSafePath(noteDir, folderAsset)) return null;
+  try {
+    const stats = fs.statSync(folderAsset);
+    if (!stats.isFile()) return null;
     return folderAsset;
+  } catch {
+    return null;
   }
 
   return null;
@@ -61,8 +66,14 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
   const ext = path.extname(resolvedPath).toLowerCase();
   const contentType = MIME_BY_EXT[ext] ?? "application/octet-stream";
-  // Read as a raw buffer to avoid accidental UTF-8 decoding for binaries.
-  const file = fs.readFileSync(resolvedPath);
+  let file: Buffer;
+  try {
+    // Read as a raw buffer to avoid accidental UTF-8 decoding for binaries.
+    file = fs.readFileSync(resolvedPath);
+  } catch (error) {
+    console.error("[notes assets] failed to read asset", error);
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
 
   return new NextResponse(file, {
     headers: {

@@ -282,10 +282,14 @@ a {
   display: none;
 }
 
-.experience-expander__icon {
-  transition: transform 200ms ease;
+.experience-expander__icon--open {
+  display: none;
 }
 
-.experience-expander[open] .experience-expander__icon {
-  transform: rotate(45deg);
+.experience-expander[open] .experience-expander__icon--open {
+  display: inline;
+}
+
+.experience-expander[open] .experience-expander__icon--closed {
+  display: none;
 }

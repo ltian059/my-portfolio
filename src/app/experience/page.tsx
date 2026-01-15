@@ -176,11 +176,19 @@ export default function ExperiencePage() {
               <details className="experience-expander mt-4 rounded-xl border border-black/[.08] bg-white/80 p-3 text-sm text-zinc-700 dark:border-white/[.15] dark:bg-white/[.06] dark:text-zinc-200">
                 <summary className="experience-expander__summary flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
                   {publicationsSection.detailsLabel}
-                  <span
-                    className="experience-expander__icon text-base text-emerald-600 dark:text-emerald-300"
-                    aria-hidden="true"
-                  >
-                    +
+                  <span className="experience-expander__icon text-base text-emerald-600 dark:text-emerald-300">
+                    <span
+                      className="experience-expander__icon--closed"
+                      aria-hidden="true"
+                    >
+                      +
+                    </span>
+                    <span
+                      className="experience-expander__icon--open"
+                      aria-hidden="true"
+                    >
+                      -
+                    </span>
                   </span>
                 </summary>
                 <div className="mt-3 space-y-3 text-sm text-zinc-600 dark:text-zinc-300">

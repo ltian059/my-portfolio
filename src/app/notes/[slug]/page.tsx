@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeKatex from "rehype-katex";
 import slugify from "slugify";
 import { visit } from "unist-util-visit";
 import type { Root } from "hast";
@@ -25,8 +27,11 @@ function rehypeSlugifyHeadings() {
   return (tree: Root) => {
     visit(tree, "element", (node: any) => {
       if (!node.tagName || !/^h[1-6]$/.test(node.tagName)) return;
+      // Keep the slugging logic aligned with TOC generation.
       const text = node.children
-        ?.filter((child: any) => child.type === "text")
+        ?.filter(
+          (child: any) => child.type === "text" || child.type === "inlineCode"
+        )
         .map((child: any) => child.value)
         .join("")
         .trim();
@@ -86,14 +91,18 @@ export default async function NotePage({ params }: PageProps) {
         ))}
       </div>
 
-      <div className="mt-8 space-y-6 text-zinc-700 dark:text-zinc-200">
+      <div className="note-content mt-8 space-y-6 text-zinc-700 dark:text-zinc-200">
         <MDXRemote
           source={note.body}
           options={{
             mdxOptions: {
-              remarkPlugins: [remarkGfm],
+              // Enable math first, then add GFM features (tables, task lists, etc.).
+              remarkPlugins: [remarkMath, remarkGfm],
               rehypePlugins: [
                 rehypeSlugifyHeadings,
+                // Render inline/block math with KaTeX.
+                rehypeKatex,
+                // Render fenced code blocks with consistent themes.
                 [
                   rehypePrettyCode,
                   {

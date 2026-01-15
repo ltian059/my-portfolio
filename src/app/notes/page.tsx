@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getBaseUrl } from "@/lib/api/base-url";
+import { fetchApiJson } from "@/lib/api/base-url";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
 
@@ -9,10 +9,8 @@ export const metadata = {
 };
 
 export default async function NotesPage() {
-  const baseUrl = await getBaseUrl();
-  const res = await fetch(`${baseUrl}/api/notes`, { cache: "no-store" });
-  const data = await res.json();
-  const sortedNotes = (data.notes ?? []) as NoteMeta[];
+  const data = await fetchApiJson<{ notes: NoteMeta[] }>("/api/notes");
+  const sortedNotes = data.notes ?? [];
 
   
   return (

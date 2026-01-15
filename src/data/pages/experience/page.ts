@@ -8,6 +8,6 @@ export const experiencePage = {
     summary:
       "Backend engineer with hands-on experience in Java Spring Boot microservices, AWS services, and DevOps automation.",
     callout:
-      "Starting working in Trend Micro since February 2026 as a Software Developer.",
+      "Start working in Trend Micro since February 2026 as a Software Developer.",
   },
 };

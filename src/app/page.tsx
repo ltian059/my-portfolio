@@ -12,6 +12,14 @@ export default async function Home() {
     fetch(`${baseUrl}/api/notes`, { cache: "no-store" }),
   ]);
 
+  // Guard against API errors so we don't parse HTML as JSON.
+  if (!homeRes.ok) {
+    throw new Error(`Failed to load home data (${homeRes.status}).`);
+  }
+  if (!notesRes.ok) {
+    throw new Error(`Failed to load notes data (${notesRes.status}).`);
+  }
+
   const homeData = (await homeRes.json()) as HomeData;
   // Type notes payload for safe mapping in the UI.
   const notesData = (await notesRes.json()) as { notes: NoteMeta[] };

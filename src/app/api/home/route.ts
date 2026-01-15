@@ -13,16 +13,24 @@ import {
 } from "@/data/pages/home";
 
 export function GET() {
-  return NextResponse.json({
-    hero,
-    stats,
-    resumeSection,
-    resumeHighlights,
-    techSection,
-    techStack,
-    focusNote,
-    projectsSection,
-    featuredProjects,
-    notesSection,
-  });
+  try {
+    return NextResponse.json({
+      hero,
+      stats,
+      resumeSection,
+      resumeHighlights,
+      techSection,
+      techStack,
+      focusNote,
+      projectsSection,
+      featuredProjects,
+      notesSection,
+    });
+  } catch (error) {
+    // Return JSON errors so callers don't attempt to parse HTML.
+    return NextResponse.json(
+      { message: "Failed to build home payload." },
+      { status: 500 }
+    );
+  }
 }

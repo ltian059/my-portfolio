@@ -4,7 +4,15 @@ export const projectsSection = {
   subtitle: "Top 3 representative Projects",
 };
 
-export const featuredProjects = [
+// Type for each featured project card.
+export type FeaturedProject = {
+  name: string;
+  detail: string;
+  tag: string;
+  hint: string;
+};
+
+export const featuredProjects: FeaturedProject[] = [
   {
     name: "Business Platform",
     detail: "Unified order, user, and risk modules supporting 5 business lines.",
@@ -24,4 +32,3 @@ export const featuredProjects = [
     hint: "Add: key tech points, scale, measurable impact3",
   },
 ];
-

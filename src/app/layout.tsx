@@ -4,6 +4,7 @@ import Link from "next/link";
 import HeaderNav from "../components/header-nav";
 import SideDrawer from "../components/side-drawer";
 import ThemeToggle from "../components/theme-toggle";
+import { headerLinks } from "@/data/pages/layout/nav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,16 +43,17 @@ export default function RootLayout({
             <div className="flex flex-1 items-center gap-3">
               <SideDrawer />
               <Link
-                href="/"
+                href={headerLinks.homeHref}
                 className="hidden font-semibold tracking-tight text-zinc-950 dark:text-zinc-50 sm:inline-flex"
               >
-                Home
+                {headerLinks.homeLabel}
               </Link>
             </div>
             <HeaderNav />
             <div className="flex flex-1 items-center justify-end gap-3">
               <a
-                href="https://github.com/ltian059"
+                href={headerLinks.githubHref}
+                target="blank"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/[.08] text-zinc-700 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-200 dark:hover:bg-white/[.06]"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">

@@ -6,7 +6,9 @@ import {
   techSection,
   projectsSection,
   notesSection,
-} from "@/data/home";
+} from "@/data/pages/home";
+import { notesPage } from "@/data/pages/notes/page";
+import { experiencePage } from "@/data/pages/experience/page";
 import { getAllNotes, getNoteBySlug } from "@/lib/notes/reader";
 import { generateToc } from "@/lib/notes/toc";
 
@@ -39,17 +41,23 @@ export function GET(request: Request) {
       title: "Home",
       items: homeItems,
     },
-    "/notes": {
-      title: "Notes",
+    [notesPage.listHref]: {
+      title: notesPage.title,
       items: noteItems,
     },
-    "/experience": {
-      title: "Experience",
-      items: [{ label: "Highlights", href: "#experience" }],
+    [experiencePage.path]: {
+      title: experiencePage.title,
+      items: [
+        { label: experiencePage.sideNavLabel, href: `#${experiencePage.anchorId}` },
+      ],
     },
   };
 
-  if (path && path.startsWith("/notes/") && path !== "/notes/") {
+  if (
+    path &&
+    path.startsWith(`${notesPage.listHref}/`) &&
+    path !== notesPage.listHref
+  ) {
     const slug = path.split("/").pop() ?? "";
     const note = getNoteBySlug(slug);
     if (note) {

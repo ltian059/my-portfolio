@@ -10,6 +10,7 @@ import slugify from "slugify";
 import { visit } from "unist-util-visit";
 import type { Root } from "hast";
 import TocNav from "@/components/toc-nav";
+import { notesPage } from "@/data/pages/notes/page";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -104,12 +105,12 @@ export default async function NotePage({ params }: PageProps) {
       {/* Main content: MDX body, centered within the middle column. */}
       <article className="min-w-0 w-full max-w-4xl justify-self-center">
         <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/notes"
-            className="text-sm text-zinc-600 hover:underline dark:text-zinc-400"
-          >
-            ← Back to Notes
-          </Link>
+        <Link
+          href={notesPage.listHref}
+          className="text-sm text-zinc-600 hover:underline dark:text-zinc-400"
+        >
+          {notesPage.backLabel}
+        </Link>
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             {note.meta.date}
           </span>

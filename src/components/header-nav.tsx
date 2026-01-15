@@ -3,19 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
-const NAV_ITEMS = [
-  { label: "Home", href: "/" },
-  { label: "Notes", href: "/notes" },
-  { label: "Experience", href: "/experience" },
-];
+import { headerNavItems } from "@/data/pages/layout/nav";
 
 export default function HeaderNav() {
   const pathname = usePathname();
   const router = useRouter();
   // Resolve the current top-level route for highlights and mobile select.
   const activeHref =
-    NAV_ITEMS.find((item) =>
+    headerNavItems.find((item) =>
       item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href)
     )?.href ?? "/";
 
@@ -50,7 +45,9 @@ export default function HeaderNav() {
     <div className="flex flex-1 items-center justify-center">
       {/* Desktop navigation links. */}
       <nav className="hidden items-center justify-center gap-6 text-sm text-zinc-500 dark:text-zinc-300 sm:flex">
-        {NAV_ITEMS.filter((item) => item.href !== "/").map((item) => (
+        {headerNavItems
+          .filter((item) => item.href !== "/")
+          .map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -77,7 +74,8 @@ export default function HeaderNav() {
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          {NAV_ITEMS.find((item) => item.href === activeHref)?.label ?? "Home"}
+          {headerNavItems.find((item) => item.href === activeHref)?.label ??
+            "Home"}
         </button>
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-emerald-500 dark:text-emerald-300">
           ▼
@@ -85,7 +83,7 @@ export default function HeaderNav() {
         {isOpen ? (
           <div className="absolute left-0 right-0 mt-2 rounded-2xl border border-emerald-200/70 bg-white/95 p-2 text-sm text-zinc-800 shadow-xl backdrop-blur dark:border-emerald-400/40 dark:bg-[#1b1b1f] dark:text-zinc-100">
             <ul className="space-y-1" role="listbox">
-              {NAV_ITEMS.map((item) => (
+              {headerNavItems.map((item) => (
                 <li key={item.href}>
                   <button
                     type="button"

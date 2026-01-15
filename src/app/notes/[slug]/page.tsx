@@ -4,7 +4,9 @@ import { headers } from "next/headers";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
-import { log } from "console";
+import slugify from "slugify";
+import { visit } from "unist-util-visit";
+import type { Root } from "hast";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -19,11 +21,28 @@ async function getBaseUrl() {
   return `${protocol}://${host}`;
 }
 
+function rehypeSlugifyHeadings() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: any) => {
+      if (!node.tagName || !/^h[1-6]$/.test(node.tagName)) return;
+      const text = node.children
+        ?.filter((child: any) => child.type === "text")
+        .map((child: any) => child.value)
+        .join("")
+        .trim();
+      if (!text) return;
+      node.properties = node.properties ?? {};
+      if (!node.properties.id) {
+        node.properties.id = slugify(text, { lower: true, strict: true });
+      }
+    });
+  };
+}
+
 export default async function NotePage({ params }: PageProps) {
   const { slug } = await params;
   const baseUrl = await getBaseUrl();
   const encodedSlug = encodeURIComponent(slug);
-  log(`Fetching note data for slug: ${slug} from ${baseUrl}/api/notes/${encodedSlug}`);
   const res = await fetch(`${baseUrl}/api/notes/${encodedSlug}`, {
     cache: "no-store",
   });
@@ -74,6 +93,7 @@ export default async function NotePage({ params }: PageProps) {
             mdxOptions: {
               remarkPlugins: [remarkGfm],
               rehypePlugins: [
+                rehypeSlugifyHeadings,
                 [
                   rehypePrettyCode,
                   {

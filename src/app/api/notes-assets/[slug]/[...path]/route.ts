@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
+import { resolveNotesDir } from "@/lib/notes/assets";
 
 type RouteContext = {
   params: Promise<{
@@ -18,37 +19,32 @@ const MIME_BY_EXT: Record<string, string> = {
   ".svg": "image/svg+xml",
 };
 
-const NOTES_DIR = path.join(
-  process.cwd(),
-  "src",
-  "data",
-  "pages",
-  "notes",
-  "content"
-);
+const NOTES_DIR = resolveNotesDir();
 
+// Guard against path traversal when resolving assets.
 function isSafePath(baseDir: string, targetPath: string) {
   // Ensure the target path stays within the base directory.
-  const normalizedBase = path.resolve(baseDir);
-  const normalizedTarget = path.resolve(targetPath);
-  return normalizedTarget.startsWith(normalizedBase);
+  const relative = path.relative(baseDir, targetPath);
+  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+}
+
+// Decode URL-encoded segments without throwing on malformed input.
+function decodePathSegment(value: string) {
+  // Decode URL-encoded segments while keeping malformed values safe.
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 function resolveAssetPath(slug: string, assetPath: string[]) {
   // Prefer per-note folders (content/<slug>/...) for assets.
   const noteDir = path.join(NOTES_DIR, slug);
+  if (assetPath.length === 0) return null;
   const folderAsset = path.join(noteDir, ...assetPath);
   if (isSafePath(noteDir, folderAsset) && fs.existsSync(folderAsset)) {
     return folderAsset;
-  }
-
-  // Fallback: support legacy flat notes (content/<slug>.mdx) with shared assets.
-  const flatNote = path.join(NOTES_DIR, `${slug}.mdx`);
-  if (fs.existsSync(flatNote)) {
-    const rootAsset = path.join(NOTES_DIR, ...assetPath);
-    if (isSafePath(NOTES_DIR, rootAsset) && fs.existsSync(rootAsset)) {
-      return rootAsset;
-    }
   }
 
   return null;
@@ -56,7 +52,9 @@ function resolveAssetPath(slug: string, assetPath: string[]) {
 
 export async function GET(_request: Request, { params }: RouteContext) {
   const { slug, path: assetPath } = await params;
-  const resolvedPath = resolveAssetPath(slug, assetPath);
+  const decodedSlug = decodePathSegment(slug);
+  const decodedPath = assetPath.map(decodePathSegment);
+  const resolvedPath = resolveAssetPath(decodedSlug, decodedPath);
   if (!resolvedPath) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }

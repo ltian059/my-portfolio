@@ -6,18 +6,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { resolveNotesDir } from "./assets";
 
-const NOTES_DIR = (() => {
-  const cwd = process.cwd();
-  const candidates = [
-    path.join(cwd, "src", "data", "pages", "notes", "content"),
-    path.join(cwd, "data", "pages", "notes", "content"),
-  ];
-
-  // Prefer the first existing path so the reader works even if dev runs from /src.
-  const found = candidates.find((dir) => fs.existsSync(dir));
-  return found ?? candidates[0];
-})();
+const NOTES_DIR = resolveNotesDir();
 
 const NOTE_INDEX = "index.mdx";
 
@@ -91,14 +82,12 @@ function resolveNoteFolderMdxPath(folderName: string) {
 }
 
 function resolveNoteMdxPath(slug: string) {
-  // Prefer per-note folders with index.mdx, but allow flat .mdx as fallback.
-  const folderPath = resolveNoteFolderMdxPath(slug);
-  if (folderPath) return folderPath;
-  return path.join(NOTES_DIR, `${slug}.mdx`);
+  // Resolve to a per-note folder MDX file only; flat notes are unsupported.
+  return resolveNoteFolderMdxPath(slug);
 }
 
 export function getAllNotes(): NoteMeta[] {
-  // Scan for per-note folders and flat .mdx files.
+  // Scan per-note folders only.
   const entries = fs.readdirSync(NOTES_DIR, { withFileTypes: true });
   const slugMap = new Map<string, NoteMeta>();
 
@@ -108,15 +97,6 @@ export function getAllNotes(): NoteMeta[] {
     if (!fullPath) continue;
     const { data } = readMdxFile(fullPath);
     slugMap.set(entry.name, parseMeta(entry.name, data));
-  }
-
-  for (const entry of entries) {
-    if (!entry.isFile() || !entry.name.endsWith(".mdx")) continue;
-    const slug = entry.name.replace(/\.mdx$/, "");
-    if (slugMap.has(slug)) continue;
-    const fullPath = path.join(NOTES_DIR, entry.name);
-    const { data } = readMdxFile(fullPath);
-    slugMap.set(slug, parseMeta(slug, data));
   }
 
   const notes = Array.from(slugMap.values());
@@ -132,7 +112,7 @@ export function getAllNotes(): NoteMeta[] {
 
 export function getNoteBySlug(slug: string): NoteContent | null {
   const fullPath = resolveNoteMdxPath(slug);
-  if (!fs.existsSync(fullPath)) return null;
+  if (!fullPath || !fs.existsSync(fullPath)) return null;
 
   const { data, content } = readMdxFile(fullPath);
   return {

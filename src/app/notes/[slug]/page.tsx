@@ -6,19 +6,20 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeKatex from "rehype-katex";
-import slugify from "slugify";
 import { visit } from "unist-util-visit";
 import type { Root } from "hast";
 import TocNav from "@/components/toc-nav";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
+import { resolveNoteAssetUrl } from "@/lib/notes/assets";
+import { createHeadingIdGenerator } from "@/lib/notes/toc";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+// Ensure external links open in a new tab for safety and UX consistency.
 function rehypeExternalLinks() {
   return (tree: Root) => {
-    // Ensure all links open in a new tab for safety and UX consistency.
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "a") return;
       node.properties = node.properties ?? {};
@@ -28,30 +29,25 @@ function rehypeExternalLinks() {
   };
 }
 
+// Map note-local image sources to the notes assets API route.
 function rehypeNoteImages(options: { slug: string }) {
   return (tree: Root) => {
-    // Rewrite relative image sources to the note assets API.
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "img") return;
       const src = node.properties?.src;
       if (typeof src !== "string") return;
-      if (src.startsWith("/") || src.includes(":")) return;
       node.properties = node.properties ?? {};
-      // Drop leading "./" so the API path stays clean and predictable.
-      const normalized = src.replace(/^\.\/+/, "");
-      node.properties.src = `/api/notes-assets/${options.slug}/${normalized}`;
+      const resolved = resolveNoteAssetUrl(options.slug, src);
+      if (resolved) {
+        node.properties.src = resolved;
+      }
     });
   };
 }
 
-function resolveCoverImage(slug: string, coverImage?: string) {
-  // Leave absolute URLs intact, rewrite relative paths to the assets API.
-  if (!coverImage) return undefined;
-  if (coverImage.startsWith("/") || coverImage.includes(":")) return coverImage;
-  return `/api/notes-assets/${slug}/${coverImage}`;
-}
-
+// Inject stable heading ids for hash links and the TOC.
 function rehypeSlugifyHeadings() {
+  const generateId = createHeadingIdGenerator();
   return (tree: Root) => {
     visit(tree, "element", (node: any) => {
       if (!node.tagName || !/^h[1-6]$/.test(node.tagName)) return;
@@ -67,12 +63,13 @@ function rehypeSlugifyHeadings() {
       if (!text) return;
       node.properties = node.properties ?? {};
       if (!node.properties.id) {
-        node.properties.id = slugify(text, { lower: true, strict: true });
+        node.properties.id = generateId(text);
       }
     });
   };
 }
 
+// Remove falsy nodes that some rehype plugins can introduce.
 function rehypeNormalizeChildren() {
   const normalize = (node: any) => {
     if (!node || typeof node !== "object") return;
@@ -84,7 +81,6 @@ function rehypeNormalizeChildren() {
   };
 
   return (tree: Root) => {
-    // Drop any undefined/null nodes to avoid MDX compile errors.
     normalize(tree);
   };
 }
@@ -109,7 +105,7 @@ export default async function NotePage({ params }: PageProps) {
   const note = noteData.note;
   const toc = noteData.toc ?? [];
   const notes = notesData.notes ?? [];
-  const coverImage = resolveCoverImage(note.meta.slug, note.meta.coverImage);
+  const coverImage = resolveNoteAssetUrl(note.meta.slug, note.meta.coverImage);
 
   return (
     <div className="mx-auto w-full max-w-[88rem] px-4 py-16">

@@ -2,19 +2,12 @@ import Link from "next/link";
 import { fetchApiJson } from "@/lib/api/base-url";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
+import { resolveNoteAssetUrl } from "@/lib/notes/assets";
 
 export const metadata = {
   title: notesPage.title,
   description: notesPage.description,
 };
-
-function resolveCoverImage(slug: string, coverImage?: string) {
-  // Keep absolute URLs intact; rewrite relative paths to the assets API.
-  if (!coverImage) return undefined;
-  if (coverImage.startsWith("/") || coverImage.includes(":")) return coverImage;
-  const normalized = coverImage.replace(/^\.\/+/, "");
-  return `/api/notes-assets/${slug}/${normalized}`;
-}
 
 export default async function NotesPage() {
   const data = await fetchApiJson<{ notes: NoteMeta[] }>("/api/notes");
@@ -41,7 +34,7 @@ export default async function NotesPage() {
           >
             {note.coverImage ? (
               <img
-                src={resolveCoverImage(note.slug, note.coverImage)}
+                src={resolveNoteAssetUrl(note.slug, note.coverImage)}
                 alt={note.title}
                 className="mb-4 h-auto w-full rounded-xl"
                 loading="lazy"

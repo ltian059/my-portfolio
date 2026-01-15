@@ -16,6 +16,17 @@ export type TocItem = {
   level: number;
 };
 
+export function createHeadingIdGenerator() {
+  const counts = new Map<string, number>();
+
+  return (text: string) => {
+    const base = slugify(text, { lower: true, strict: true }) || "section";
+    const current = counts.get(base) ?? 0;
+    counts.set(base, current + 1);
+    return current === 0 ? base : `${base}-${current}`;
+  };
+}
+
 function extractHeadingText(node: any): string {
   // Collect plain text and inline code inside a heading.
   const parts: string[] = [];
@@ -37,6 +48,7 @@ export function generateToc(mdxSource: string): TocItem[] {
     .parse(mdxSource);
 
   const toc: TocItem[] = [];
+  const generateId = createHeadingIdGenerator();
 
   // Walk the AST and capture heading nodes.
   visit(tree, "heading", (node: any) => {
@@ -44,8 +56,8 @@ export function generateToc(mdxSource: string): TocItem[] {
     const text = extractHeadingText(node);
     if (!text) return;
 
-    // Create a stable, URL-friendly id for anchor links.
-    const id = slugify(text, { lower: true, strict: true });
+    // Generate ids that stay stable while avoiding duplicates.
+    const id = generateId(text);
 
     toc.push({ id, text, level });
   });

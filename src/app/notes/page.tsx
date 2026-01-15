@@ -2,6 +2,7 @@ import Link from "next/link";
 import { fetchApiJson } from "@/lib/api/base-url";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
+import { resolveNoteAssetUrl } from "@/lib/notes/assets";
 
 export const metadata = {
   title: notesPage.title,
@@ -33,7 +34,7 @@ export default async function NotesPage() {
           >
             {note.coverImage ? (
               <img
-                src={note.coverImage}
+                src={resolveNoteAssetUrl(note.slug, note.coverImage)}
                 alt={note.title}
                 className="mb-4 h-auto w-full rounded-xl"
                 loading="lazy"

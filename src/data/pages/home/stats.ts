@@ -5,7 +5,7 @@ export type StatItem = {
 };
 
 export const stats: StatItem[] = [
-  { label: "Experience", value: "0 - 1 years" },
-  { label: "Projects Delivered", value: "3+ projects" },
-  { label: "Focus", value: "Backend & Architecture" },
+  { label: "Degree", value: "M.Sc. Computer Science" },
+  { label: "Microservices", value: "10+ services" },
+  { label: "Focus", value: "Backend & Cloud" },
 ];

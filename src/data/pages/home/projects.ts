@@ -14,21 +14,24 @@ export type FeaturedProject = {
 
 export const featuredProjects: FeaturedProject[] = [
   {
-    name: "Business Platform",
-    detail: "Unified order, user, and risk modules supporting 5 business lines.",
-    tag: "System Design",
-    hint: "Add: key tech points, scale, measurable impact1",
+    name: "Financial Pulse (AWS)",
+    detail:
+      "Social-style financial tracking platform with Spring Boot microservices and REST APIs.",
+    tag: "AWS Microservices",
+    hint: "EC2, RDS, DynamoDB, SQS, Lambda, Spring Boot",
   },
   {
-    name: "Real-time Risk Pipeline",
-    detail: "Sub-second rule evaluation with metrics alerts to reduce losses.",
+    name: "High-Availability E-commerce Platform",
+    detail:
+      "10+ Spring Cloud services with RabbitMQ, Redis, and Elasticsearch for search and flash sales.",
     tag: "High Concurrency",
-    hint: "Add: key tech points, scale, measurable impact2",
+    hint: "RabbitMQ, Redisson, Redis, Elasticsearch, Docker",
   },
   {
-    name: "Campaign Platform",
-    detail: "Configurable pages and automation for fast iteration.",
-    tag: "Platform",
-    hint: "Add: key tech points, scale, measurable impact3",
+    name: "CI/CD Automation",
+    detail:
+      "Automated build, test, and deploy pipelines using GitHub Actions and CloudFormation.",
+    tag: "DevOps",
+    hint: "GitHub Actions, CloudFormation, AWS",
   },
 ];

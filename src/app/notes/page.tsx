@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { headers } from "next/headers";
+import { getBaseUrl } from "@/lib/api/base-url";
 import { notesPage } from "@/data/pages/notes/page";
 import type { NoteMeta } from "@/lib/notes/reader";
 
@@ -7,16 +7,6 @@ export const metadata = {
   title: notesPage.title,
   description: notesPage.description,
 };
-
-async function getBaseUrl() {
-  const headerList = await headers();
-  const protocol = headerList.get("x-forwarded-proto") ?? "http";
-  const host =
-    headerList.get("x-forwarded-host") ??
-    headerList.get("host") ??
-    "localhost:3000";
-  return `${protocol}://${host}`;
-}
 
 export default async function NotesPage() {
   const baseUrl = await getBaseUrl();

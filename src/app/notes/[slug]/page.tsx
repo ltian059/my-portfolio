@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
+import { getBaseUrl } from "@/lib/api/base-url";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -14,16 +14,6 @@ import { notesPage } from "@/data/pages/notes/page";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-async function getBaseUrl() {
-  const headerList = await headers();
-  const protocol = headerList.get("x-forwarded-proto") ?? "http";
-  const host =
-    headerList.get("x-forwarded-host") ??
-    headerList.get("host") ??
-    "localhost:3000";
-  return `${protocol}://${host}`;
-}
 
 function rehypeSlugifyHeadings() {
   return (tree: Root) => {

@@ -2,12 +2,12 @@ export const experiencePage = {
   path: "/experience",
   title: "Experience",
   description:
-    "A detailed timeline of my education, work, publications, and project work.",
+    "M.Sc. Computer Science new graduate focused on backend engineering and cloud-native systems.",
   intro: {
-    eyebrow: "Background",
+    eyebrow: "Profile",
     summary:
-      "This page expands on the highlights from the home page with a deeper look at each stage.",
+      "Backend engineer with hands-on experience in Java Spring Boot microservices, AWS services, and DevOps automation.",
     callout:
-      "Use the sidebar to jump between education, work, publications, and projects.",
+      "Seeking junior software engineer or backend roles. Eligible to work in Canada under PGWP until 2028.",
   },
 };

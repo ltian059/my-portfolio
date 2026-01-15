@@ -14,28 +14,58 @@ export const projectsSection = {
   linkLabel: "View project",
   items: [
     {
+      name: "Financial Pulse - High-Availability News Platform",
+      period: "May 2025 - Aug 2025",
+      summary:
+        "Owned end-to-end delivery of a secure, high-availability news platform built on AWS.",
+      highlights: [
+        "Scaled backend infrastructure (EC2, S3, Aurora) to support 500K users and 10M+ posts.",
+        "Built an event-driven backend with SQS and Lambda for high-throughput async processing.",
+        "Designed and secured RESTful APIs with API Gateway and Spring Security (OAuth2/JWT).",
+        "Automated CI/CD with GitHub Actions and managed IaC via CloudFormation.",
+      ],
+      stack: [
+        "AWS",
+        "Java",
+        "Spring Boot",
+        "SQS",
+        "Lambda",
+        "API Gateway",
+        "CloudFormation",
+      ],
+    },
+    {
+      name: "Embedded Wearable & Radar-Based Physiological Monitoring System",
+      period: "Sep 2024 - Jan 2025",
+      summary:
+        "Capstone project on real-time physiological signal acquisition and human activity recognition.",
+      highlights: [
+        "Collected synchronized PPG and accelerometer data at 250 Hz on MAXREFDES104.",
+        "Built a binary parsing tool for near real-time streaming and CSV conversion.",
+        "Optimized Go Direct Respiration Belt stack for USB and BLE data acquisition.",
+        "Deployed a mmWave activity recognition system on Jetson Orin NX.",
+      ],
+      stack: ["MATLAB", "Python", "Embedded Systems", "Jetson Orin"],
+    },
+    {
       name: "High-Availability E-commerce Platform",
       period: "Dec 2022 - May 2023",
       summary:
         "A microservices-based e-commerce system focused on scalability and fault isolation.",
       highlights: [
-        "Implemented 10+ Spring Cloud services with Docker-based deployment.",
-        "Used RabbitMQ and Redisson locks to reduce flash-sale order latency.",
-        "Integrated Elasticsearch to improve search and ranking performance.",
+        "Built 10+ Spring Cloud services with clear domain separation and horizontal scaling.",
+        "Used RabbitMQ and Redisson distributed locks to reduce flash-sale latency from ~2s to ~200ms.",
+        "Integrated Elasticsearch to improve product search and ranking performance.",
+        "Containerized services with Docker for consistent local and staging environments.",
       ],
-      stack: ["Java", "Spring Cloud", "RabbitMQ", "Elasticsearch"],
-    },
-    {
-      name: "Personal Portfolio",
-      period: "2024 - Present",
-      summary:
-        "A data-driven portfolio site with MDX notes, dynamic TOC, and custom navigation.",
-      highlights: [
-        "Built a reusable layout with a side drawer and scroll-synced navigation.",
-        "Added MDX rendering with math, code highlighting, and note assets routing.",
+      stack: [
+        "Java",
+        "Spring Cloud",
+        "RabbitMQ",
+        "Redis",
+        "Elasticsearch",
+        "Docker",
       ],
-      stack: ["TypeScript", "Next.js", "MDX"],
-      link: "https://example.com",
     },
   ],
 };

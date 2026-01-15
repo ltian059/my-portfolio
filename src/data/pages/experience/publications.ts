@@ -1,3 +1,5 @@
+import { link } from "fs";
+
 export type PublicationItem = {
   title: string;
   venue: string;
@@ -17,18 +19,21 @@ export const publicationsSection = {
   detailsLabel: "Abstract",
   items: [
     {
-      title: "Adaptive Caching for Microservices at Scale",
-      venue: "ACM Systems Workshop",
-      year: "2024",
-      authors: "Your Name, Collaborator Name",
+      title:
+        "Phenotype Matching: RF Sensor-Based Indoor Subject Identification with Wearable Sensor Assistance",
+      venue: "Int Conf IEEE Eng Med Biol Soc. 2025 Jul",
+      year: "2025",
+      authors: "Zixiong Han, Li(Daniel) Tian, co-authors",
       details:
-        "We present an adaptive cache placement strategy that improves tail latency for multi-tenant microservices under bursty workloads.",
+        "As part of my M.Sc. capstone project (CSI6900), I contributed to an RF-based indoor subject identification system that fuses contactless RF sensing with wearable physiological data. The system targets privacy-preserving indoor identification by combining RF signatures with ground-truth physiological phenotypes from wearables. My work focused on data collection, signal processing, and model development for subject identification without per-subject customization.",
       highlights: [
-        "Introduced a feedback-driven cache allocator with per-service SLO tracking.",
-        "Evaluated on production-like traces to show improved P95 latency.",
+        "Implemented data acquisition and preprocessing pipelines for PPG, accelerometer, and respiration signals.",
+        "Performed signal processing and feature extraction to align wearable and RF sensing outputs.",
+        "Assisted with model evaluation across multiple subjects and indoor scenarios.",
+        "Contributed to result analysis and interpretation for the final paper.",
       ],
-      link: "https://example.com/publications/adaptive-caching",
-      note: "Under review",
+      note: "Guided by Prof. Miodrag Bolic · IEEE EMBS 2025",
+      link: "https://pubmed.ncbi.nlm.nih.gov/41337307/"
     },
   ],
 };

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#f97316"/>
+  <path d="M32 10L52 16V32C52 44 43 52 32 55C21 52 12 44 12 32V16L32 10Z" fill="#fff7ed"/>
+  <path d="M22 24H42V27H22Z" fill="#fed7aa"/>
+  <text x="32" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#c2410c">EIT</text>
+</svg>

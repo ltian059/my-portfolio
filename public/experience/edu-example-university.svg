@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#1b5ed4"/>
+  <path d="M32 10L52 16V32C52 44 43 52 32 55C21 52 12 44 12 32V16L32 10Z" fill="#f8fafc"/>
+  <path d="M20 24H44V27H20Z" fill="#dbeafe"/>
+  <text x="32" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b5ed4">EU</text>
+</svg>

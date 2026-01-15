@@ -3,6 +3,8 @@ export type EducationItem = {
   degree: string;
   period: string;
   location: string;
+  logoSrc: string;
+  logoAlt: string;
   highlights: string[];
 };
 
@@ -16,6 +18,8 @@ export const educationSection = {
       degree: "M.S. in Computer Science",
       period: "2023 - 2025",
       location: "City, Country",
+      logoSrc: "/experience/edu-example-university.svg",
+      logoAlt: "Example University crest",
       highlights: [
         "Focus on distributed systems, cloud computing, and applied machine learning.",
         "Coursework: Advanced Algorithms, Database Systems, and Cloud Infrastructure.",
@@ -26,6 +30,8 @@ export const educationSection = {
       degree: "B.S. in Software Engineering",
       period: "2019 - 2023",
       location: "City, Country",
+      logoSrc: "/experience/edu-example-tech.svg",
+      logoAlt: "Example Institute of Technology crest",
       highlights: [
         "Built a strong foundation in systems design, data structures, and web development.",
         "Led a capstone project on high-availability service architecture.",

@@ -49,15 +49,29 @@ export default function ExperiencePage() {
               key={`${item.school}-${item.degree}`}
               className="rounded-2xl border border-black/[.08] bg-white/70 p-5 shadow-sm dark:border-white/[.145] dark:bg-white/[.04]"
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
-                  {item.degree}
-                </h3>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-black/[.08] bg-white/80 shadow-sm dark:border-white/[.15] dark:bg-white/[.06]">
+                    <img
+                      src={item.logoSrc}
+                      alt={item.logoAlt}
+                      className="h-10 w-10"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
+                      {item.degree}
+                    </h3>
+                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                      {item.school}
+                    </p>
+                    <p className="text-xs text-zinc-500">{item.location}</p>
+                  </div>
+                </div>
                 <span className="text-sm text-zinc-500">{item.period}</span>
               </div>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-                {item.school} - {item.location}
-              </p>
               <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
                 {item.highlights.map((highlight) => (
                   <li key={highlight}>{highlight}</li>
@@ -81,15 +95,29 @@ export default function ExperiencePage() {
               key={`${item.company}-${item.role}`}
               className="rounded-2xl border border-black/[.08] bg-white/70 p-5 shadow-sm dark:border-white/[.145] dark:bg-white/[.04]"
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
-                  {item.role}
-                </h3>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-black/[.08] bg-white/80 shadow-sm dark:border-white/[.15] dark:bg-white/[.06]">
+                    <img
+                      src={item.logoSrc}
+                      alt={item.logoAlt}
+                      className="h-10 w-10"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
+                      {item.role}
+                    </h3>
+                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                      {item.company}
+                    </p>
+                    <p className="text-xs text-zinc-500">{item.location}</p>
+                  </div>
+                </div>
                 <span className="text-sm text-zinc-500">{item.period}</span>
               </div>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-                {item.company} - {item.location}
-              </p>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
                 {item.summary}
               </p>
@@ -145,6 +173,27 @@ export default function ExperiencePage() {
                   {item.note}
                 </p>
               ) : null}
+              <details className="experience-expander mt-4 rounded-xl border border-black/[.08] bg-white/80 p-3 text-sm text-zinc-700 dark:border-white/[.15] dark:bg-white/[.06] dark:text-zinc-200">
+                <summary className="experience-expander__summary flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+                  {publicationsSection.detailsLabel}
+                  <span
+                    className="experience-expander__icon text-base text-emerald-600 dark:text-emerald-300"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <div className="mt-3 space-y-3 text-sm text-zinc-600 dark:text-zinc-300">
+                  <p>{item.details}</p>
+                  {item.highlights?.length ? (
+                    <ul className="list-disc space-y-1 pl-5">
+                      {item.highlights.map((highlight) => (
+                        <li key={highlight}>{highlight}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              </details>
               {item.link ? (
                 <a
                   href={item.link}

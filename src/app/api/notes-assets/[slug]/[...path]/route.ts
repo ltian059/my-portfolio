@@ -75,7 +75,10 @@ export async function GET(_request: Request, { params }: RouteContext) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
 
-  return new NextResponse(file, {
+  const arrayBuffer = new ArrayBuffer(file.byteLength);
+  new Uint8Array(arrayBuffer).set(file);
+
+  return new NextResponse(arrayBuffer, {
     headers: {
       "Content-Type": contentType,
       "Cache-Control": "public, max-age=31536000, immutable",

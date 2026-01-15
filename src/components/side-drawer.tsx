@@ -30,15 +30,16 @@ export default function SideDrawer() {
   const pendingHrefRef = useRef<string | null>(null);
   const CLOSE_DURATION_MS = 300;
 
-  // Fetch side nav data once on mount (client-side).
+  // Fetch side nav data on mount and when the route changes (client-side).
   useEffect(() => {
     const loadSideNav = async () => {
-      const res = await fetch("/api/sidenav");
+      const query = pathname ? `?path=${encodeURIComponent(pathname)}` : "";
+      const res = await fetch(`/api/sidenav${query}`);
       const data = await res.json();
       setSideNavState(data);
     };
     loadSideNav();
-  }, []);
+  }, [pathname]);
 
   // Prevent background scroll when the drawer is open.
   useEffect(() => {
@@ -64,10 +65,14 @@ export default function SideDrawer() {
     if (hashItems.length === 0) return;
 
     const elements = hashItems
-      .map((item) => ({
-        href: item.href,
-        el: document.querySelector(item.href),
-      }))
+      .map((item) => {
+        // Use getElementById to avoid invalid selector errors for numeric IDs.
+        const id = item.href.slice(1);
+        return {
+          href: item.href,
+          el: document.getElementById(id),
+        };
+      })
       .filter((entry) => entry.el);
 
     if (elements.length === 0) return;
@@ -100,7 +105,8 @@ export default function SideDrawer() {
     if (!pendingHref) return;
     pendingHrefRef.current = null;
     if (pendingHref.startsWith("#")) {
-      const target = document.querySelector(pendingHref);
+      // Prefer getElementById to avoid selector parsing issues.
+      const target = document.getElementById(pendingHref.slice(1));
       if (target instanceof HTMLElement) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
       }

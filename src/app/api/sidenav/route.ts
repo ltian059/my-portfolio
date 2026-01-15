@@ -7,7 +7,8 @@ import {
   projectsSection,
   notesSection,
 } from "@/data/home";
-import { getAllNotes } from "@/lib/notes/reader";
+import { getAllNotes, getNoteBySlug } from "@/lib/notes/reader";
+import { generateToc } from "@/lib/notes/toc";
 
 export type SideNavConfig = {
   title?: string;
@@ -30,21 +31,38 @@ const noteItems: SideNavItem[] = getAllNotes().map((note) => ({
   href: `#${note.slug}`,
 }));
 
-const sideNavByPath: Record<string, SideNavConfig> = {
-  "/": {
-    title: "Home",
-    items: homeItems,
-  },
-  "/notes": {
-    title: "Notes",
-    items: noteItems,
-  },
-  "/experience": {
-    title: "Experience",
-    items: [{ label: "Highlights", href: "#experience" }],
-  },
-};
+export function GET(request: Request) {
+  const url = new URL(request.url);
+  const path = url.searchParams.get("path");
+  const sideNavByPath: Record<string, SideNavConfig> = {
+    "/": {
+      title: "Home",
+      items: homeItems,
+    },
+    "/notes": {
+      title: "Notes",
+      items: noteItems,
+    },
+    "/experience": {
+      title: "Experience",
+      items: [{ label: "Highlights", href: "#experience" }],
+    },
+  };
 
-export function GET() {
+  if (path && path.startsWith("/notes/") && path !== "/notes/") {
+    const slug = path.split("/").pop() ?? "";
+    const note = getNoteBySlug(slug);
+    if (note) {
+      const toc = generateToc(note.body);
+      sideNavByPath[path] = {
+        title: note.meta.title,
+        items: toc.map((item) => ({
+          label: item.text,
+          href: `#${item.id}`,
+        })),
+      };
+    }
+  }
+
   return NextResponse.json({ sideNavByPath });
 }

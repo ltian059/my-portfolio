@@ -1,19 +1,66 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllNotes, getNoteBySlug } from "@/lib/notes/reader";
+import { headers } from "next/headers";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeKatex from "rehype-katex";
+import slugify from "slugify";
+import { visit } from "unist-util-visit";
+import type { Root } from "hast";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateStaticParams() {
-  return getAllNotes().map((note) => ({ slug: note.slug }));
+async function getBaseUrl() {
+  const headerList = await headers();
+  const protocol = headerList.get("x-forwarded-proto") ?? "http";
+  const host =
+    headerList.get("x-forwarded-host") ??
+    headerList.get("host") ??
+    "localhost:3000";
+  return `${protocol}://${host}`;
+}
+
+function rehypeSlugifyHeadings() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: any) => {
+      if (!node.tagName || !/^h[1-6]$/.test(node.tagName)) return;
+      // Keep the slugging logic aligned with TOC generation.
+      const text = node.children
+        ?.filter(
+          (child: any) => child.type === "text" || child.type === "inlineCode"
+        )
+        .map((child: any) => child.value)
+        .join("")
+        .trim();
+      if (!text) return;
+      node.properties = node.properties ?? {};
+      if (!node.properties.id) {
+        node.properties.id = slugify(text, { lower: true, strict: true });
+      }
+    });
+  };
 }
 
 export default async function NotePage({ params }: PageProps) {
   const { slug } = await params;
-  const note = getNoteBySlug(slug);
+  const baseUrl = await getBaseUrl();
+  const encodedSlug = encodeURIComponent(slug);
+  const res = await fetch(`${baseUrl}/api/notes/${encodedSlug}`, {
+    cache: "no-store",
+  });
+  if (res.status === 404) {
+    notFound();
+  }
 
-  if (!note) notFound();
+  if (!res.ok) {
+    throw new Error(`Failed to load note: ${slug}`);
+  }
+
+  const data = await res.json();
+  const note = data.note;
 
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -44,13 +91,32 @@ export default async function NotePage({ params }: PageProps) {
         ))}
       </div>
 
-      {/* <div className="mt-8 space-y-4 text-zinc-700 dark:text-zinc-200">
-        {note.body.map((p, idx) => (
-          <p key={idx} className="leading-8">
-            {p}
-          </p>
-        ))}
-      </div> */}
+      <div className="note-content mt-8 space-y-6 text-zinc-700 dark:text-zinc-200">
+        <MDXRemote
+          source={note.body}
+          options={{
+            mdxOptions: {
+              // Enable math first, then add GFM features (tables, task lists, etc.).
+              remarkPlugins: [remarkMath, remarkGfm],
+              rehypePlugins: [
+                rehypeSlugifyHeadings,
+                // Render inline/block math with KaTeX.
+                rehypeKatex,
+                // Render fenced code blocks with consistent themes.
+                [
+                  rehypePrettyCode,
+                  {
+                    theme: {
+                      dark: "github-dark",
+                      light: "github-light",
+                    },
+                  },
+                ],
+              ],
+            },
+          }}
+        />
+      </div>
     </article>
   );
 }

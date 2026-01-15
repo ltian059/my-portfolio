@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -62,4 +63,187 @@ a {
   to {
     transform: translateX(0);
   }
+}
+
+/* Note content typography and code block styling. */
+.note-content {
+  line-height: 1.8;
+}
+
+.note-content :where(h1) {
+  margin-top: 2.5rem;
+  font-size: 2.25rem;
+}
+
+.note-content :where(h2) {
+  margin-top: 2.25rem;
+  font-size: 1.9rem;
+}
+
+.note-content :where(h3) {
+  margin-top: 2rem;
+  font-size: 1.6rem;
+}
+
+.note-content :where(h4) {
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.note-content :where(h5) {
+  margin-top: 1.25rem;
+  font-size: 1.1rem;
+}
+
+.note-content :where(h6) {
+  margin-top: 1.1rem;
+  font-size: 1rem;
+}
+
+.note-content :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 96px;
+}
+
+.note-content :where(p) {
+  color: inherit;
+}
+
+.note-content :where(p + p) {
+  margin-top: 1rem;
+}
+
+.note-content :where(a) {
+  color: #2563eb;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.dark .note-content :where(a) {
+  color: #60a5fa;
+}
+
+/* Ensure lists render with visible bullets/numbers and spacing. */
+.note-content :where(ul, ol) {
+  margin: 0.75rem 0 0.75rem 1.25rem;
+  padding-left: 1rem;
+  list-style-position: outside;
+}
+
+.note-content :where(ul) {
+  list-style: disc;
+}
+
+.note-content :where(ol) {
+  list-style: decimal;
+}
+
+/* Style blockquotes as callouts for a Notion-like look. */
+.note-content :where(blockquote) {
+  margin: 1.25rem 0;
+  border-left: 4px solid rgba(37, 99, 235, 0.6);
+  border-radius: 0.75rem;
+  background: rgba(37, 99, 235, 0.08);
+  padding: 0.9rem 1.1rem;
+  color: rgba(24, 24, 27, 0.9);
+}
+
+.dark .note-content :where(blockquote) {
+  border-left-color: rgba(96, 165, 250, 0.6);
+  background: rgba(96, 165, 250, 0.12);
+  color: rgba(228, 228, 231, 0.9);
+}
+
+/* Style inline code without breaking KaTeX math spans. */
+.note-content :where(:not(pre) > code) {
+  border-radius: 0.4rem;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.15rem 0.35rem;
+  font-size: 0.85em;
+}
+
+.dark .note-content :where(:not(pre) > code) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure fenced code blocks are readable and consistent. */
+.note-content :where(pre) {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.note-content :where(pre code) {
+  display: block;
+  font-family: var(--font-geist-mono);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* Force Shiki token colors to show when rehype-pretty-code is active. */
+.note-content [data-rehype-pretty-code-fragment] pre {
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--shiki-light-bg, #f8fafc);
+  color: var(--shiki-light, #0f172a);
+}
+
+/* Use Shiki token variables for per-span color. */
+.note-content [data-rehype-pretty-code-fragment] span {
+  color: var(--shiki-light, currentColor);
+}
+
+.dark .note-content [data-rehype-pretty-code-fragment] pre {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: var(--shiki-dark-bg, #0b0b0d);
+  color: var(--shiki-dark, #e5e7eb);
+}
+
+.dark .note-content [data-rehype-pretty-code-fragment] span {
+  color: var(--shiki-dark, currentColor);
+}
+
+/* Show language label from data-language attribute. */
+.note-content [data-rehype-pretty-code-fragment] pre::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.6rem;
+  right: 0.9rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.1);
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.dark .note-content [data-rehype-pretty-code-fragment] pre::before {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.note-content :where(.katex-display) {
+  margin: 1.5rem 0;
+}
+
+.note-content :where(.katex) {
+  font-size: 1.05em;
+}
+
+.note-content :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.note-content :where(th, td) {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+}
+
+.dark .note-content :where(th, td) {
+  border-color: rgba(255, 255, 255, 0.15);
 }

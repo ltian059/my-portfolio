@@ -150,9 +150,9 @@ export default function SideDrawer() {
   };
 
 
-  if (!config || config.items.length === 0) return null;
+  const hasNav = !!config && config.items.length > 0;
 
-  const drawer = isOpen ? (
+  const drawer = isOpen && hasNav ? (
     <div className="fixed inset-0 z-30 pt-16">
       <button
         type="button"
@@ -198,11 +198,15 @@ export default function SideDrawer() {
     <>
       <button
         type="button"
-        onClick={() => (isOpen ? handleClose() : handleOpen())}
-        className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/[.08] text-zinc-700 hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-200 dark:hover:bg-white/[.06] ${
+        onClick={() => {
+          if (!hasNav) return;
+          isOpen ? handleClose() : handleOpen();
+        }}
+        className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/[.08] text-zinc-700 hover:bg-black/[.04] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[.145] dark:text-zinc-200 dark:hover:bg-white/[.06] ${
           hideOnXl ? "xl:hidden" : ""
         }`}
         aria-label={isOpen ? "Close navigation" : "Open navigation"}
+        disabled={!hasNav}
       >
         {isOpen ? "✕" : "☰"}
       </button>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "theme";
 const THEME_CHANGE_EVENT = "theme-change";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 type Theme = "light" | "dark";
 
@@ -21,8 +22,20 @@ function getInitialTheme(): Theme {
     : "light";
 }
 
-export default function ThemeToggle() {
+function setThemeCookie(theme: Theme) {
+  document.cookie = `theme=${theme}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+type ThemeToggleProps = {
+  initialTheme?: Theme;
+};
+
+export default function ThemeToggle({ initialTheme }: ThemeToggleProps) {
+  const resolvedInitialTheme =
+    initialTheme === "light" || initialTheme === "dark" ? initialTheme : undefined;
+  const hasInitialTheme = resolvedInitialTheme !== undefined;
   const [theme, setTheme] = useState<Theme>(() => {
+    if (resolvedInitialTheme) return resolvedInitialTheme;
     if (typeof document === "undefined") return "light";
     return document.documentElement.classList.contains("dark")
       ? "dark"
@@ -30,11 +43,26 @@ export default function ThemeToggle() {
   });
   const themeRef = useRef<Theme>(theme);
   const didInitRef = useRef(false);
+  const didSyncRef = useRef(false);
 
   useEffect(() => {
     themeRef.current = theme;
-    document.documentElement.classList.toggle("dark", theme === "dark");
+    const root = document.documentElement;
+    const rootTheme: Theme = root.classList.contains("dark") ? "dark" : "light";
+    if (!didSyncRef.current) {
+      didSyncRef.current = true;
+      if (hasInitialTheme && rootTheme !== theme) {
+        setTheme(rootTheme);
+        return;
+      }
+    }
+    const isDark = root.classList.contains("dark");
+    if (isDark !== (theme === "dark")) {
+      root.classList.toggle("dark", theme === "dark");
+    }
+    root.style.colorScheme = theme;
     window.localStorage.setItem(STORAGE_KEY, theme);
+    setThemeCookie(theme);
     if (didInitRef.current) {
       window.dispatchEvent(
         new CustomEvent<Theme>(THEME_CHANGE_EVENT, { detail: theme })
@@ -42,7 +70,7 @@ export default function ThemeToggle() {
     } else {
       didInitRef.current = true;
     }
-  }, [theme]);
+  }, [theme, hasInitialTheme]);
 
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {

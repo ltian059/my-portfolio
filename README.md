@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# my-portfolio
+
+A personal portfolio website featuring a Home page, an Experience page, and MDX-powered technical notes. Built with Next.js App Router, TypeScript, and Tailwind CSS.
+
+## Live Demo
+
+- Demo: <https://my-portfolio-nu-ten-90.vercel.app/>
+
+## Features
+
+- Responsive layout: desktop/mobile navigation, side drawer
+- Light/Dark theme toggle: persisted via `localStorage` + cookie, no first-paint flash (FOUC)
+- Notes (MDX-powered)
+  - Frontmatter metadata (`title/date/tags/summary`, etc.)
+  - Auto-generated TOC + heading anchors
+  - Syntax highlighting (Shiki / `rehype-pretty-code`)
+  - Math rendering (KaTeX via `remark-math` / `rehype-katex`)
+  - Safe note asset delivery via `/api/notes-assets/...` (path traversal guard)
+- Content-as-data: copy and structure live in `src/data/pages/*`
+- Internal APIs: `/api/home`, `/api/notes`, `/api/notes/[slug]`, `/api/sidenav`
+
+## Tech Stack
+
+- Next.js (App Router) + React + TypeScript
+- Tailwind CSS
+- MDX: `next-mdx-remote` (RSC) + unified/remark/rehype + Shiki
 
 ## Getting Started
 
-First, run the development server:
+### Requirements
+
+- Node.js 18.17+ (recommended 20+)
+- npm (repo includes `package-lock.json`)
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+For reproducible installs in CI/clean environments:
+
+```bash
+npm ci
+```
+
+### Start dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — start dev server
+- `npm run build` — production build
+- `npm run start` — start production server
+- `npm run lint` — run ESLint
 
-## Learn More
+## Content
 
-To learn more about Next.js, take a look at the following resources:
+### Site metadata / header links
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/data/pages/layout/meta.ts` — site title/description
+- `src/data/pages/layout/nav.ts` — nav items + external links (GitHub / LinkedIn)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Static assets (avatar / resume / images)
 
-## Deploy on Vercel
+- `public/avatar.png` — homepage avatar
+- `public/DanielTian_Resume.pdf` — resume download
+- `public/experience/*` — logos used on the experience page
+- `public/notes/*` — public note cover images (optional)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Home / Experience pages
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/data/pages/home/*` — home sections (Hero, Projects, Notes, etc.)
+- `src/data/pages/experience/*` — experience sections (education, work, projects, publications)
+
+### Notes: add/edit a note
+
+1. Create `index.mdx` under `src/data/pages/notes/content/<slug>/`
+2. Required frontmatter fields:
+
+```md
+---
+title: "My Note Title"
+date: "2026-01-01"
+tags: ["nextjs", "mdx"]
+summary: "One-line description"
+priority: 1 # optional: smaller = higher priority
+coverImage: "./cover.png" # optional: relative to the note folder, or an absolute /public path
+---
+```
+
+3. Images inside notes:
+   - Put files under `content/<slug>/...` and reference them relatively (`./cover.png`, `./images/foo.png`)
+   - Or use an absolute path under `/public` (e.g. `/notes/xxx.png`)
+
+## Structure
+
+```text
+src/app               # Pages + API routes (App Router)
+src/components        # UI components (Header, SideNav, ThemeToggle, TOC, ...)
+src/data/pages        # Content and structured page data
+src/lib               # Utilities (notes reader, TOC, internal API helpers)
+public                # Static files (avatar, resume, images)
+```
+
+## Deployment
+
+Recommended: Vercel, or any platform that supports the Next.js Node runtime.
+
+- Build: `npm run build`
+- Start: `npm run start`
+
+Note: Notes are loaded from the filesystem at runtime (`node:fs` reads `src/data/pages/notes/content`), so this project is not compatible with a pure static export.
+
+## License
+
+No license provided yet (default: all rights reserved). If you want to open-source it, add a `LICENSE` file and update this section.

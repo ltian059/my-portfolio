@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import HeaderNav from "../components/header-nav";
 import MobileMenu from "../components/mobile-menu";
@@ -30,13 +31,53 @@ export const metadata: Metadata = {
   description: siteMeta.description,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("theme")?.value;
+  const theme =
+    themeCookie === "dark" || themeCookie === "light" ? themeCookie : undefined;
+  const themeClassName = theme === "dark" ? "dark" : "";
+  const colorScheme = theme ?? "light";
+
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={themeClassName}
+      style={{ colorScheme }}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+  try {
+    const root = document.documentElement;
+    root.classList.add("no-theme-transition");
+    const match = document.cookie.match(/(?:^|; )theme=(dark|light)/);
+    const cookieTheme = match ? match[1] : null;
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = cookieTheme || (stored === "dark" || stored === "light"
+      ? stored
+      : (prefersDark ? "dark" : "light"));
+    root.classList.toggle("dark", theme === "dark");
+    root.style.colorScheme = theme;
+    document.cookie = "theme=" + theme + "; Path=/; Max-Age=31536000; SameSite=Lax";
+    const removeTransitions = () => root.classList.remove("no-theme-transition");
+    if (document.readyState === "complete") {
+      removeTransitions();
+    } else {
+      window.addEventListener("load", removeTransitions, { once: true });
+    }
+  } catch {}
+})();`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} min-h-screen antialiased`}
       >
@@ -72,7 +113,7 @@ export default function RootLayout({
                     <path d="M19 3A2 2 0 0 1 21 5v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zm-9.5 7.5H7V18h2.5v-7.5zM8.25 6.5A1.5 1.5 0 1 0 8.25 9a1.5 1.5 0 0 0 0-3zm9.25 4.5c-1.2 0-2.1.5-2.5 1.2V10h-2.4v8h2.5v-4.2c0-1.2.7-2 1.8-2 1 0 1.5.7 1.5 2V18H20v-4.6c0-2.4-1.3-3.9-3.5-3.9z" />
                   </svg>
                 </a>
-                <ThemeToggle />
+                <ThemeToggle initialTheme={theme ?? "light"} />
               </div>
               <div className="flex items-center gap-2 sm:hidden">
                 <a
